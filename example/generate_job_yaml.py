@@ -7,7 +7,7 @@ from packaging import version as pk_version
 
 
 from alpaka_job_coverage.globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from example_globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from vikunja_globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 @typechecked
@@ -63,7 +63,10 @@ def job_image(job: Dict[str, Tuple[str, str]], container_version: float) -> str:
     if job[HOST_COMPILER][NAME] == GCC and job[DEVICE_COMPILER][NAME] == GCC:
         container_url += "-gcc"
 
-    if job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF:
+    if (
+        ALPAKA_ACC_GPU_CUDA_ENABLE in job
+        and job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF
+    ):
         # Cast cuda version shape. E.g. from 11.0 to 110
         container_url += "-cuda" + str(
             int(float(job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION]) * 10)
@@ -71,7 +74,10 @@ def job_image(job: Dict[str, Tuple[str, str]], container_version: float) -> str:
         if job[HOST_COMPILER][NAME] == GCC:
             container_url += "-gcc"
 
-    if job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF:
+    if (
+        ALPAKA_ACC_GPU_HIP_ENABLE in job
+        and job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF
+    ):
         container_url += "-rocm" + job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION]
 
     # append container tag
@@ -92,10 +98,10 @@ def job_variables(job: Dict[str, Tuple[str, str]]) -> Dict[str, str]:
     variables: Dict[str, str] = {}
 
     # add variables with correct names, that can be called
-    # e.g. -DCMAKE_CXX_COMPILER=${EXAMPLE_CI_CXX}
+    # e.g. -DCMAKE_CXX_COMPILER=${VIKUNJA_CI_CXX}
     for compiler in [HOST_COMPILER, DEVICE_COMPILER]:
         compiler_variable_name = (
-            "EXAMPLE_CI_CXX" if compiler == HOST_COMPILER else "EXAMPLE_CI_DEVICE_CXX"
+            "VIKUNJA_CI_CXX" if compiler == HOST_COMPILER else "VIKUNJA_CI_DEVICE_CXX"
         )
         if job[compiler][NAME] == GCC:
             variables[compiler_variable_name] = "g++-" + job[compiler][VERSION]
@@ -108,20 +114,26 @@ def job_variables(job: Dict[str, Tuple[str, str]]) -> Dict[str, str]:
 
     # Set variables for host and device compiler name and version to check if the compilers are
     # available or needs to be installed
-    variables[f"EXAMPLE_CI_{get_env_var_name(job[HOST_COMPILER][NAME])}_VER"] = job[
+    variables[f"VIKUNJA_CI_{get_env_var_name(job[HOST_COMPILER][NAME])}_VER"] = job[
         HOST_COMPILER
     ][VERSION]
-    variables[f"EXAMPLE_CI_{get_env_var_name(job[DEVICE_COMPILER][NAME])}_VER"] = job[
+    variables[f"VIKUNJA_CI_{get_env_var_name(job[DEVICE_COMPILER][NAME])}_VER"] = job[
         DEVICE_COMPILER
     ][VERSION]
 
     # required to check, if the correct CUDA SDK is available
-    if job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF:
-        variables["EXAMPLE_CI_CUDA_VER"] = job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION]
+    if (
+        ALPAKA_ACC_GPU_CUDA_ENABLE in job
+        and job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF
+    ):
+        variables["VIKUNJA_CI_CUDA_VER"] = job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION]
 
     # required to check, if the correct ROCm SDK is available
-    if job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF:
-        variables["EXAMPLE_CI_ROCM_VER"] = job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION]
+    if (
+        ALPAKA_ACC_GPU_HIP_ENABLE in job
+        and job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF
+    ):
+        variables["VIKUNJA_CI_ROCM_VER"] = job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION]
 
     # create CMake string to enable the alpaka backends
     backend_str = ""
@@ -141,15 +153,15 @@ def job_variables(job: Dict[str, Tuple[str, str]]) -> Dict[str, str]:
                 backend_str += f"-D{backend_name}=ON "
 
     if backend_str != "":
-        variables["EXAMPLE_CI_ALPAKA_BACKENDS"] = backend_str
+        variables["VIKUNJA_CI_ALPAKA_BACKENDS"] = backend_str
 
     # simply copy name and version of the required software
     for parameter_name in [CMAKE, BOOST, ALPAKA]:
-        variables[f"EXAMPLE_CI_{get_env_var_name(parameter_name)}_VER"] = job[
+        variables[f"VIKUNJA_CI_{get_env_var_name(parameter_name)}_VER"] = job[
             parameter_name
         ][VERSION]
 
-    variables["EXAMPLE_CI_CXX_STANDARD"] = job[CXX_STANDARD][VERSION]
+    variables["VIKUNJA_CI_CXX_STANDARD"] = job[CXX_STANDARD][VERSION]
 
     # static variables
     # is required for a recursive clone
@@ -157,15 +169,21 @@ def job_variables(job: Dict[str, Tuple[str, str]]) -> Dict[str, str]:
 
     cmake_extra_arg = ""
 
-    if job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF:
+    if (
+        ALPAKA_ACC_GPU_HIP_ENABLE in job
+        and job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF
+    ):
         # architecture of the Vega 64
         cmake_extra_arg += "-DALPAKA_HIP_ARCH=900 "
 
-    if job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF:
+    if (
+        ALPAKA_ACC_GPU_CUDA_ENABLE in job
+        and job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF
+    ):
         # CI contains a Quadro P5000 (sm_61)
         cmake_extra_arg += "-DCMAKE_CUDA_ARCHITECTURES=61 "
 
-    variables["EXAMPLE_CI_EXTRA_ARGS"] = cmake_extra_arg
+    variables["VIKUNJA_CI_EXTRA_ARGS"] = cmake_extra_arg
 
     return variables
 
@@ -180,6 +198,9 @@ def job_tags(job: Dict[str, Tuple[str, str]]) -> List[str]:
     Returns:
         List[str]: List of tags.
     """
+    # TODO: change back to correct tags
+    return ["x86_64", "cpuonly"]
+
     if job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF:
         return ["x86_64", "cuda"]
     if job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF:
