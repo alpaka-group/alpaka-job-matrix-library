@@ -7,7 +7,7 @@ from packaging import version as pk_version
 
 
 from alpaka_job_coverage.globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from vikunja_globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
+from example_globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 
 @typechecked

@@ -1,0 +1,19 @@
+name: test-different-python-versions
+on: [push]
+jobs:
+  check-python-versions:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.8', '3.9', '3.10']
+    name: Check Python ${{ matrix.python-version }}
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+      - run: pip install -r alpaka_job_coverage/requirements.txt
+      - run: python example/example.py 3.0
+      - run: cat jobs.yml

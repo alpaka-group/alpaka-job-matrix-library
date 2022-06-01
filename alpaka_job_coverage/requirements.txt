@@ -2,3 +2,4 @@ allpairspy == 2.5.0
 typeguard
 pyaml
 types-PyYAML
+packaging
