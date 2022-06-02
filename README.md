@@ -30,8 +30,23 @@ If you want to use a project-specific parameter, you can simply add it to the pa
 * The input of the filter is a combination of the values of the individual parameter fields, and the combination does not have to be complete. The list can contain at least 2 parameter fields up to all. You must check whether a parameter field is included in the current combination.
 * If a parameter field is not included in the current combination, it means that it can contain any possible value of this parameter. In practice, this means that if you only check for the presence of the parameter and return `False`, if the parameter is not present, no combination is possible.
 
-# Running the example
+# Developing
 
-First you have to install the required packages via `pip3 install -r requirements.txt`.
+It is strongly recommended to use a Python environment for developing the code, such as `virtualenv` or a `conda` environment. The following code uses a `virtualenv`.
 
-Then you can run the example via `python3 3.0 example/example.py`. By default, it creates a `job.yml` in the current directory. To get more output, you can run `python3 3.0 example/example.py -a`. Run `python3 --help` to see all the options.
+1. Create the environment: `virtualenv -p python3 env`
+2. Activate the environment: `source env/bin/activate`
+3. Install the library: `python setup.py develop`
+4. Test the installation with the example: `python3 example/example.py 3.0`
+
+If the example works correctly, a `job.yml` will be created in the current directory. You can also run `python3 example/example.py --help` to see additional options.
+
+Now the library is available in the environment. Therefore you can easily use the library in your own projects via `import alpaka_job_coverage as ajc`.
+
+## Contribution
+
+This section contains some hints for developing new functions. The hints are mainly for people who have no experience with `setuptools` and building `pip` packages.
+
+* The `python setup.py develop` command installs the source code files as a symbolic link. This means that changes in the source code of the Python files in the `src/alpaka_job_coverage` folder are directly available without any additional installation step (only a restart of the Python process/interpreter is required).
+* The software requirements are defined in `setup.py` and not in an additional `requirements.txt`.
+* It is necessary to increase the version number in `version.txt` before a new feature can be merged in the master branch. Otherwise the upload to pypy.org will fail because existing versions cannot be changed.

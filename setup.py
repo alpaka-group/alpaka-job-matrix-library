@@ -13,12 +13,6 @@ with open("README.md", "r", encoding="utf-8") as fh:
 with open("version.txt", "r", encoding="utf-8") as fh:
     version = fh.read()
 
-# attention, the requirements.txt needs to be added to the MANIFEST.in, otherwise the file is not
-# available during build
-with open("requirements.txt", "r", encoding="utf-8") as fh:
-    requirements = fh.read()
-
-
 setuptools.setup(
     name="alpaka-job-coverage",
     version=version,
@@ -39,6 +33,12 @@ setuptools.setup(
     packages=setuptools.find_packages('src'),
     package_dir={'': 'src'},
     python_requires=">=3.8",
-    install_requires=requirements
+    install_requires=[
+        "allpairspy == 2.5.0",
+        "typeguard",
+        "pyaml",
+        "types-PyYAML",
+        "packaging",
+    ]
 )
 

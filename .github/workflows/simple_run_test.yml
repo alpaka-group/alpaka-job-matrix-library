@@ -14,6 +14,6 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      - run: pip install -r requirements.txt
+      - run: python setup.py install
       - run: python example/example.py 3.0
       - run: cat jobs.yml
