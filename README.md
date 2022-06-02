@@ -32,6 +32,6 @@ If you want to use a project-specific parameter, you can simply add it to the pa
 
 # Running the example
 
-First you have to install the required packages via `pip3 install -r alpaka_job_coverage/requirements.txt`.
+First you have to install the required packages via `pip3 install -r requirements.txt`.
 
 Then you can run the example via `python3 3.0 example/example.py`. By default, it creates a `job.yml` in the current directory. To get more output, you can run `python3 3.0 example/example.py -a`. Run `python3 --help` to see all the options.

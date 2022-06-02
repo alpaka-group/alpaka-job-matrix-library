@@ -1,5 +1,9 @@
 # python cache files
 __pycache__
 
+# output folder of the python package build process
+dist/
+src/alpaka_job_coverage.egg-info/
+
 # default output of the example.py
 jobs.yml
