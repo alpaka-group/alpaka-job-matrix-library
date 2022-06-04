@@ -17,10 +17,31 @@ jobs:
       - run: python setup.py install
       - run: python example/example.py 3.0
       - run: cat jobs.yml
+  check-version:
+    runs-on: ubuntu-latest
+    name: checks if the version.txt is different compare to the main branch
+    needs: run-job-generator
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: pr
+      - uses: actions/checkout@v3
+        with:
+          ref: main
+          path: main
+      - name: check version.txt
+        run: |
+          if ! diff pr/version.txt main/version.txt >> /dev/null ; then 
+            echo "the versions are different"
+            exit 0
+          else
+            echo "the same version as in the main branch"
+            exit 1
+          fi
   build-package:
     runs-on: ubuntu-latest
     name: Build pip package and upload it
-    needs: run-job-generator
+    needs: check-version
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
