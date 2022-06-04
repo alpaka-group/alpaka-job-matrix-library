@@ -37,7 +37,7 @@ jobs:
         run: python3 -m build
       - run: ls dist
       - name: publish a package to pypi.org
-        if: github.ref == 'refs/heads/master'
+        if: github.ref == 'refs/heads/main'
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
