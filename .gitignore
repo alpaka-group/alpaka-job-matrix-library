@@ -9,3 +9,6 @@ src/alpaka_job_coverage.egg-info/
 jobs.yml
 # default environment for development
 env
+
+# visual studio code setting
+.vscode

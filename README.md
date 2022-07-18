@@ -5,11 +5,21 @@ The library provides everything needed to generate a sparse combination matrix f
 
 The provision of the input parameters, the reordering of the jobs, the filtering of the job matrix and the generation of the job yaml are project specific. Therefore, the library provides an example of how most parts can be implemented.
 
+# Installation
+
+Install via pip:
+
+```bash
+pip install alpaka-job-coverage
+```
+
+See [pypi.org](https://pypi.org/project/alpaka-job-coverage/)
+
 # Usage
 
 The main function of the library is `create_job_list()`. It takes a list of parameters, creates the combinations, applies the combination rules, thins them and returns the sparse job matrix.
 
-The thinning is done according to the principle [all-pairs testing](https://en.wikipedia.org/wiki/All-pairs_testing). The principle means that every combination of the values of at least two parameters must be part of a job, unless a filter rule forbids this. The `pair_size` parameter of the `create_job_list()` function decides how large the combination tuple must be. For example, if we have the parameter fields `A, B, C` and `D` and pair size 2, each combination of the values of `AB, AC, AD, BC, BD and CD` must be part of a job. If the parameter is 3, any combination of the values of `ABC, ABD and BCD` must be part of a job. Normally, a larger pairwise factor increases the calculation time and the number of orders.  
+The thinning is done according to the principle [all-pairs testing](https://en.wikipedia.org/wiki/All-pairs_testing). The principle means that every combination of the values of at least two parameters must be part of a job, unless a filter rule forbids this. The `pair_size` parameter of the `create_job_list()` function decides how large the combination tuple must be. For example, if we have the parameter fields `A, B, C` and `D` and pair size 2, each combination of the values of `AB, AC, AD, BC, BD and CD` must be part of a job. If the parameter is 3, any combination of the values of `ABC, ABD and BCD` must be part of a job. Normally, a larger pairwise factor increases the calculation time and the number of orders.
 
 The general form of the parameter matrix is an `OrderedDict` of `List[Tuples[str, str]]`. The first value of a tuple is the name of the software and the second value is the version. An exception is the parameter field `BACKENDS`. `BACKENDS` is a `list[list[tuple[str, str]]`. The inner list contains a combination of alpaka backends. This can be a complete combination matrix of all backends (the inner list contains n entries), or it can be only one backend (size of the inner list is 1), as required for [cupla](https://github.com/alpaka-group/cupla). A mixture of both is also possible, e.g. `[(ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE, ON), (ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE, ON), (ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE, ON)],[(ALPAKA_ACC_GPU_CUDA_ENABLE, "11. 0")],[(ALPAKA_ACC_GPU_CUDA_ENABLE, "11.0")] ...]`.
 
