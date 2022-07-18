@@ -112,6 +112,25 @@ def row_check_version(
         pk_version.parse(row[param_map[colum]][VERSION]), pk_version.parse(version)
     )
 
+def backend_is_not_in_row(row: List, backend: str) -> bool:
+    """Returns True, if backend is not in backend list.
+
+    Args:
+        row (List): Row to check.
+        backend (str): Name of the backend, which version should be compared.
+
+    Returns:
+        bool: Return False, if backend is not in the row. If backend is in the row and
+        the backend name is in the backend list return False else True.
+    """
+
+    if not is_in_row(row, BACKENDS):
+        return False
+    else:
+        for row_backend in row[param_map[BACKENDS]]:
+            if row_backend[NAME] == backend:
+                return False
+    return True
 
 # no typechecked, because function is performance critical
 def row_check_backend_version(row: List, backend: str, opr: str, version: str) -> bool:

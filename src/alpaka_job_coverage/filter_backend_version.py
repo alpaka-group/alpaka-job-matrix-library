@@ -5,6 +5,7 @@ from alpaka_job_coverage.globals import *  # pylint: disable=wildcard-import,unu
 from alpaka_job_coverage.util import (
     row_check_name,
     row_check_backend_version,
+    backend_is_not_in_row,
 )
 
 
@@ -46,6 +47,10 @@ def compiler_backend_filter(row: List) -> bool:
     ###########################
 
     if row_check_name(row, DEVICE_COMPILER, "==", NVCC):
+        # the CUDA backend needs to be defined
+        if backend_is_not_in_row(row, ALPAKA_ACC_GPU_CUDA_ENABLE):
+            return False
+
         # the nvcc compiler needs the same version, like the backend
         if row_check_backend_version(
             row,
@@ -64,6 +69,10 @@ def compiler_backend_filter(row: List) -> bool:
     ###########################
 
     if row_check_name(row, DEVICE_COMPILER, "==", CLANG_CUDA):
+        # the CUDA backend needs to be defined
+        if backend_is_not_in_row(row, ALPAKA_ACC_GPU_CUDA_ENABLE):
+            return False
+
         # the CUDA backend needs to be enabled
         if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "==", OFF):
             return False
@@ -78,6 +87,10 @@ def compiler_backend_filter(row: List) -> bool:
 
     # the HIP backend needs to be enabled and has the same version number
     if row_check_name(row, DEVICE_COMPILER, "==", HIPCC):
+        # the HIP backend needs to be defined
+        if backend_is_not_in_row(row, ALPAKA_ACC_GPU_HIP_ENABLE):
+            return False
+
         if row_check_backend_version(
             row,
             ALPAKA_ACC_GPU_HIP_ENABLE,
