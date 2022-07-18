@@ -16,7 +16,7 @@ from versions import (
 )
 from example_filter import example_post_filter
 from reorder_jobs import reorder_jobs
-from generate_job_yaml import generate_job_yaml
+from generate_job_yaml import generate_job_yaml_list, write_job_yaml
 from verify import verify
 
 
@@ -95,14 +95,17 @@ if __name__ == "__main__":
 
         print(f"number of combinations: {len(job_matrix)}")
 
-    wave_job_matrix = ajc.distribute_to_waves(job_matrix, 10)
+    job_matrix_yaml = generate_job_yaml_list(
+        job_matrix=job_matrix, container_version=args.version
+    )
+
+    wave_job_matrix = ajc.distribute_to_waves(job_matrix_yaml, 10)
 
     if args.verify or args.all:
         if not verify(job_matrix):
             sys.exit(1)
 
-    generate_job_yaml(
+    write_job_yaml(
         job_matrix=wave_job_matrix,
         path=args.output_path,
-        container_version=args.version,
     )

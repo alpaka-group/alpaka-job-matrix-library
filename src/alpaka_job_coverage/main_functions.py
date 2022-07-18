@@ -123,8 +123,8 @@ def shuffle_job_matrix(job_matrix: List[Dict[str, Tuple[str, str]]], seed: int =
 
 @typechecked
 def distribute_to_waves(
-    job_matrix: List[Dict[str, Tuple[str, str]]], wave_size: int, max_jobs: int = 0
-) -> List[List[Dict[str, Tuple[str, str]]]]:
+    job_matrix: List[Dict[str, Dict]], wave_size: int, max_jobs: int = 0
+) -> List[List[Dict[str, Dict]]]:
     """Distribute the jobs of job_matrix (1D) to a list of waves (2D). Each wave has the size
     wave_size. Total number in list waves is smaller or equal to max_jobs.
 
@@ -142,7 +142,7 @@ def distribute_to_waves(
     # if max_jobs is greater than len(job_matrix), crop it to len(job_matrix)
     max_jobs = max_jobs if max_jobs < len(job_matrix) else len(job_matrix)
 
-    wave_matrix: List[List[Dict[str, Tuple[str, str]]]] = []
+    wave_matrix: List[List[Dict[str, Dict]]] = []
 
     for i in range(0, max_jobs, wave_size):
         wave_matrix.append(job_matrix[i : i + wave_size])
