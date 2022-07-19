@@ -31,12 +31,11 @@ def software_dependency_filter(row: List) -> bool:
         ):
             return False
 
-    # GCC 8 and older does not support C++20
+    # GCC 9 and older does not support -std=c++20
     if (
-        is_in_row(row, CXX_STANDARD)
-        and int(row[param_map[CXX_STANDARD]][VERSION]) >= 20
+        row_check_version(row, CXX_STANDARD, ">=", "20")
         and row_check_name(row, HOST_COMPILER, "==", GCC)
-        and int(row[param_map[HOST_COMPILER]][VERSION]) <= 8
+        and row_check_version(row, HOST_COMPILER, "<=", "9")
     ):
         return False
 
@@ -81,6 +80,14 @@ def software_dependency_filter(row: List) -> bool:
         )
     ):
         return False
+
+    # Clang 9 and older does not support -std=c++20
+    if row_check_version(row, CXX_STANDARD, ">=", "20"):
+        for compiler_name in [CLANG, CLANG_CUDA]:
+            if row_check_name(
+                row, HOST_COMPILER, "==", compiler_name
+            ) and row_check_version(row, HOST_COMPILER, "<=", "9"):
+                return False
 
     # ubuntu 18.04 containers are not available for CUDA 11.0 and later
     if (
