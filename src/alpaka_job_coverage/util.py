@@ -1,7 +1,7 @@
 """Different support functions.
 """
 
-import operator
+import operator, re
 from typing import Any, List, Dict, Tuple
 from typeguard import typechecked
 from packaging import version as pk_version
@@ -112,6 +112,7 @@ def row_check_version(
         pk_version.parse(row[param_map[colum]][VERSION]), pk_version.parse(version)
     )
 
+
 def backend_is_not_in_row(row: List, backend: str) -> bool:
     """Returns True, if backend is not in backend list.
 
@@ -131,6 +132,7 @@ def backend_is_not_in_row(row: List, backend: str) -> bool:
             if row_backend[NAME] == backend:
                 return False
     return True
+
 
 # no typechecked, because function is performance critical
 def row_check_backend_version(row: List, backend: str, opr: str, version: str) -> bool:
@@ -199,3 +201,88 @@ def search_and_move_job(
                 job_matrix.insert(position, job_matrix.pop(index))
                 return True
     return False
+
+
+@typechecked
+def filter_job_list(
+    job_matrix: List[Dict[str, Dict]], job_name_regex: str
+) -> List[Dict[str, Dict]]:
+    """Returns list, where all job names matches the job_name_regex.
+
+    Args:
+        job_matrix (List[Dict[str, Dict]]): Input job matrix.
+        job_name_regex (str): Regex to match. See Python regex.
+
+    Returns:
+        List[Dict[str, Dict]]: Filtered job matrix.
+    """
+    compiled_regex = re.compile(job_name_regex)
+    filtered_jobs: List[Dict[str, Dict]] = []
+
+    for job in job_matrix:
+        if compiled_regex.match(list(job.keys())[0]):
+            filtered_jobs.append(job)
+
+    return filtered_jobs
+
+
+@typechecked
+def reorder_job_list(
+    job_matrix: List[Dict[str, Dict]], job_name_regex: str
+) -> List[Dict[str, Dict]]:
+    """Reorder list with a list of regex. The ordering of the regex in the job_name_regex will be
+    also the ordering of the return job matrix.
+
+    For example, the job_name_regex string "^NVCC ^GCC" has the behavior that all NVCC jobs will be
+    the first items in the returned job matrix, than all GCC job will follow and than all jobs,
+    which does not match the two regex.
+
+    Args:
+        job_matrix (List[Dict[str, Dict]]): Input job matrix.
+        job_name_regex (str): List of regex, separated by whitespaces. E.g. "^NVCC ^Clang|^GCC ^HIP"
+
+    Returns:
+        List[Dict[str, Dict]]: Reordered job matrix.
+    """
+    # each regex is separated by a whitespace
+    ordering_list = job_name_regex.strip().split(" ")
+
+    # reverse list, because reorder_job_list_single_regex() puts matched jobs in the beginning
+    ordering_list.reverse()
+
+    tmp_job_matrix = job_matrix
+    for regex in ordering_list:
+        tmp_job_matrix = reorder_job_list_single_regex(tmp_job_matrix, regex)
+
+    return tmp_job_matrix
+
+
+@typechecked
+def reorder_job_list_single_regex(
+    job_matrix: List[Dict[str, Dict]], job_name_regex: str
+) -> List[Dict[str, Dict]]:
+    """Reorder list with a regex. Put all jobs in the beginning, which names matches the regex. Then
+    all other jobs will following.
+
+    Args:
+        job_matrix (List[Dict[str, Dict]]): Input job matrix.
+        job_name_regex (str): Regex to match. See Python regex.
+
+    Returns:
+        List[Dict[str, Dict]]: Reordered job matrix.
+    """
+    compiled_regex = re.compile(job_name_regex)
+    index_list: List[int] = []
+    new_job_list: List[Dict[str, Dict]] = []
+
+    for index, job in enumerate(job_matrix):
+        if compiled_regex.match(list(job.keys())[0]):
+            index_list.append(index)
+
+    for index, job in enumerate(job_matrix):
+        if index in index_list:
+            new_job_list.insert(0, job)
+        else:
+            new_job_list.append(job)
+
+    return new_job_list

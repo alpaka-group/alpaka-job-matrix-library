@@ -5,6 +5,7 @@ from typing import List, Dict, Tuple
 from collections import OrderedDict
 
 import alpaka_job_coverage as ajc
+from alpaka_job_coverage.util import filter_job_list, reorder_job_list
 from alpaka_job_coverage.globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
 from example_globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
@@ -56,6 +57,22 @@ def get_args() -> argparse.Namespace:
         help="Path of the generated jobs yaml.",
     )
 
+    parser.add_argument(
+        "--filter",
+        type=str,
+        default="",
+        help="Filter the jobs with a Python regex that checks the job names.",
+    )
+
+    parser.add_argument(
+        "--reorder",
+        type=str,
+        default="",
+        help="Orders jobs by their names. Expects a string consisting of one or more Python regex. "
+        'The regex are separated by whitespaces. For example, the regex "^NVCC ^GCC" has the '
+        "behavior that all NVCC jobs are executed first and then all GCC jobs.",
+    )
+
     return parser.parse_args()
 
 
@@ -66,7 +83,7 @@ if __name__ == "__main__":
     parameters: OrderedDict = OrderedDict()
     parameters[HOST_COMPILER] = get_compiler_versions()
     parameters[DEVICE_COMPILER] = get_compiler_versions()
-    # change the comment of the following two lines to use a different backend combination matrix 
+    # change the comment of the following two lines to use a different backend combination matrix
     # as input
     parameters[BACKENDS] = get_backend_combination_matrix()
     # parameters[BACKENDS] = get_backend_single_matrix()
@@ -86,7 +103,7 @@ if __name__ == "__main__":
         print(f"number of combinations before reorder: {len(job_matrix)}")
 
     ajc.shuffle_job_matrix(job_matrix)
-    # it is also possible to read existing jobs from a yaml file and add them to the job_matrix 
+    # it is also possible to read existing jobs from a yaml file and add them to the job_matrix
     reorder_jobs(job_matrix)
 
     if args.print_combinations or args.all:
@@ -98,6 +115,12 @@ if __name__ == "__main__":
     job_matrix_yaml = generate_job_yaml_list(
         job_matrix=job_matrix, container_version=args.version
     )
+
+    if args.filter:
+        job_matrix_yaml = filter_job_list(job_matrix_yaml, args.filter)
+
+    if args.reorder:
+        job_matrix_yaml = reorder_job_list(job_matrix_yaml, args.reorder)
 
     wave_job_matrix = ajc.distribute_to_waves(job_matrix_yaml, 10)
 
