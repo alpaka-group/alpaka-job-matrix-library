@@ -4,6 +4,7 @@
 from alpaka_job_coverage.globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
 from alpaka_job_coverage.util import (
     row_check_name,
+    row_check_version,
     row_check_backend_version,
     backend_is_not_in_row,
 )
@@ -79,6 +80,36 @@ def compiler_backend_filter(row: List) -> bool:
 
         # it is not allowed to enable the HIP and CUDA backend on the same time
         if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF):
+            return False
+
+        if row_check_version(
+            row, DEVICE_COMPILER, "<=", "7"
+        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "9.2"):
+            return False
+
+        if row_check_version(
+            row, DEVICE_COMPILER, "<=", "8"
+        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "10.0"):
+            return False
+
+        if row_check_version(
+            row, DEVICE_COMPILER, "<=", "10"
+        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "10.1"):
+            return False
+
+        if row_check_version(
+            row, DEVICE_COMPILER, "<=", "12"
+        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "11.0"):
+            return False
+
+        if row_check_version(
+            row, DEVICE_COMPILER, "<=", "13"
+        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "11.2"):
+            return False
+
+        if row_check_version(
+            row, DEVICE_COMPILER, "<=", "15"
+        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "11.5"):
             return False
 
     ###########################
