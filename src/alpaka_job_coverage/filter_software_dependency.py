@@ -113,4 +113,11 @@ def software_dependency_filter(row: List) -> bool:
     ):
         return False
 
+    # a bug in CMAKE 3.18 avoids the correct usage of the variable CMAKE_CUDA_ARCHITECTURE if the
+    # CUDA compiler is Clang++
+    if row_check_name(row, DEVICE_COMPILER, "==", CLANG_CUDA) and row_check_version(
+        row, CMAKE, "<", "3.19"
+    ):
+        return False
+
     return True
