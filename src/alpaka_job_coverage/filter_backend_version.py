@@ -25,10 +25,10 @@ def compiler_backend_filter(row: List) -> bool:
     ###########################
 
     if row_check_name(row, DEVICE_COMPILER, "==", GCC):
-        if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF):
+        if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF_VER):
             return False
 
-        if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF):
+        if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER):
             return False
 
     ###########################
@@ -36,11 +36,11 @@ def compiler_backend_filter(row: List) -> bool:
     ###########################
 
     if row_check_name(row, DEVICE_COMPILER, "==", CLANG):
-        if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF):
+        if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF_VER):
             return False
 
         # clang cannot compile with enabled HIP backend
-        if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF):
+        if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER):
             return False
 
     ###########################
@@ -62,7 +62,7 @@ def compiler_backend_filter(row: List) -> bool:
             return False
 
         # it is not allowed to enable the HIP and CUDA backend on the same time
-        if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF):
+        if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER):
             return False
 
     ###########################
@@ -75,11 +75,11 @@ def compiler_backend_filter(row: List) -> bool:
             return False
 
         # the CUDA backend needs to be enabled
-        if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "==", OFF):
+        if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "==", OFF_VER):
             return False
 
         # it is not allowed to enable the HIP and CUDA backend on the same time
-        if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF):
+        if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER):
             return False
 
         if row_check_version(
@@ -131,7 +131,7 @@ def compiler_backend_filter(row: List) -> bool:
             return False
 
         # it is not allowed to enable the HIP and CUDA backend on the same time
-        if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF):
+        if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF_VER):
             return False
 
     return True

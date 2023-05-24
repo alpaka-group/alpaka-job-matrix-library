@@ -41,9 +41,13 @@ BACKENDS_LIST: List[str] = [
     ALPAKA_ACC_GPU_HIP_ENABLE,
 ]
 
-# backend states
+# if want to use version comparison functions from util.py, you need to use ON_VER and OFF_VER
 ON: str = "on"
 OFF: str = "off"
+
+# backend states
+ON_VER: str = "1.0.0"
+OFF_VER: str = "0.0.0"
 
 # additional parameters, like alpaka software dependencies, compiler configurations and so one
 UBUNTU: str = "ubuntu"
