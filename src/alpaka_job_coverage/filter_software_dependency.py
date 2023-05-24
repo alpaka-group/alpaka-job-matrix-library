@@ -92,7 +92,7 @@ def software_dependency_filter(row: List) -> bool:
     # ubuntu 18.04 containers are not available for CUDA 11.0 and later
     if (
         row_check_version(row, UBUNTU, "==", "18.04")
-        and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF)
+        and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF_VER)
         and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">=", "11.0")
     ):
         return False
@@ -100,7 +100,7 @@ def software_dependency_filter(row: List) -> bool:
     # ubuntu 20.04 containers are not available for CUDA 10.2 and before
     if (
         row_check_version(row, UBUNTU, "==", "20.04")
-        and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF)
+        and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF_VER)
         and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "<", "11.0")
     ):
         return False
@@ -109,7 +109,7 @@ def software_dependency_filter(row: List) -> bool:
     if (
         row_check_version(row, UBUNTU, "!=", "20.04")
         and row_check_name(row, DEVICE_COMPILER, "==", HIPCC)
-        and row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF)
+        and row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER)
     ):
         return False
 

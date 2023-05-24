@@ -14,7 +14,7 @@ def example_post_filter(row) -> bool:
         and (
             pk_version.parse(row[param_map[ALPAKA]][VERSION])
             > pk_version.parse("0.8.0")
-            or row[param_map[ALPAKA]][VERSION] == "develop"
+            or row[param_map[ALPAKA]][VERSION] == "1.0.0-dev"
         )
         and pk_version.parse(row[param_map[BOOST]][VERSION])
         < pk_version.parse("1.74.0")

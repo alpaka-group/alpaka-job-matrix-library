@@ -29,7 +29,7 @@ sw_versions: Dict[str, List[str]] = {
         "1.77.0",
         "1.78.0",
     ],
-    ALPAKA: ["0.6.0", "0.6.1", "0.7.0", "0.8.0", "0.9.0", "develop"],
+    ALPAKA: ["0.6.0", "0.6.1", "0.7.0", "0.8.0", "0.9.0", "1.0.0-dev"],
     CXX_STANDARD: ["14", "17", "20"],
 }
 
@@ -73,7 +73,7 @@ def get_backend_versions() -> List[List[Tuple[str, str]]]:
     backends: List[List[Tuple[str, str]]] = []
 
     for backend_name in sw_versions[BACKENDS]:
-        backend_list = [(backend_name, OFF)]
+        backend_list = [(backend_name, OFF_VER)]
         if backend_name == ALPAKA_ACC_GPU_CUDA_ENABLE:
             for version in sw_versions[NVCC]:
                 backend_list.append((backend_name, version))
@@ -81,7 +81,7 @@ def get_backend_versions() -> List[List[Tuple[str, str]]]:
             for version in sw_versions[HIPCC]:
                 backend_list.append((backend_name, version))
         else:
-            backend_list.append((backend_name, ON))
+            backend_list.append((backend_name, ON_VER))
         backends.append(backend_list)
 
     return backends
@@ -137,8 +137,8 @@ def get_backend_single_matrix() -> List[List[Tuple[str, str]]]:
     combination_matrix: List[List[Tuple[str, str]]] = []
     combination_matrix.append(
         [
-            (ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE, ON),
-            (ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE, ON),
+            (ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE, ON_VER),
+            (ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE, ON_VER),
         ]
     )
 

@@ -33,11 +33,17 @@ def force_job(
     new_job: Dict[str, Tuple[str, str]] = {
         HOST_COMPILER: (),
         DEVICE_COMPILER: (),
-        ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE: (ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE, OFF),
-        ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE: (ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE, OFF),
-        ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE: (ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE, OFF),
-        ALPAKA_ACC_GPU_CUDA_ENABLE: (ALPAKA_ACC_GPU_CUDA_ENABLE, OFF),
-        ALPAKA_ACC_GPU_HIP_ENABLE: (ALPAKA_ACC_GPU_HIP_ENABLE, OFF),
+        ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE: (ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE, OFF_VER),
+        ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE: (
+            ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE,
+            OFF_VER,
+        ),
+        ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE: (
+            ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE,
+            OFF_VER,
+        ),
+        ALPAKA_ACC_GPU_CUDA_ENABLE: (ALPAKA_ACC_GPU_CUDA_ENABLE, OFF_VER),
+        ALPAKA_ACC_GPU_HIP_ENABLE: (ALPAKA_ACC_GPU_HIP_ENABLE, OFF_VER),
         CMAKE: (CMAKE, sw_versions[CMAKE][-1]),
         BOOST: (BOOST, sw_versions[BOOST][-1]),
         ALPAKA: (ALPAKA, sw_versions[ALPAKA][-1]),
@@ -80,7 +86,7 @@ def reorder_jobs(job_matrix: List[Dict[str, Tuple[str, str]]]):
         searched_job={
             HOST_COMPILER: (GCC, "9"),
             DEVICE_COMPILER: (GCC, "9"),
-            ALPAKA: (ALPAKA, "develop"),
+            ALPAKA: (ALPAKA, "1.0.0-dev"),
         },
     )
 
@@ -98,7 +104,7 @@ def reorder_jobs(job_matrix: List[Dict[str, Tuple[str, str]]]):
         searched_job={
             HOST_COMPILER: (CLANG, "13"),
             DEVICE_COMPILER: (CLANG, "13"),
-            ALPAKA: (ALPAKA, "develop"),
+            ALPAKA: (ALPAKA, "1.0.0-dev"),
         },
     )
 
@@ -118,7 +124,7 @@ def reorder_jobs(job_matrix: List[Dict[str, Tuple[str, str]]]):
             HOST_COMPILER: (GCC, "9"),
             DEVICE_COMPILER: (NVCC, "11.6"),
             ALPAKA_ACC_GPU_CUDA_ENABLE: (ALPAKA_ACC_GPU_CUDA_ENABLE, "11.6"),
-            ALPAKA: (ALPAKA, "develop"),
+            ALPAKA: (ALPAKA, "1.0.0-dev"),
         },
     )
 
@@ -136,6 +142,6 @@ def reorder_jobs(job_matrix: List[Dict[str, Tuple[str, str]]]):
         searched_job={
             HOST_COMPILER: (HIPCC, "5.1"),
             DEVICE_COMPILER: (HIPCC, "5.1"),
-            ALPAKA: (ALPAKA, "develop"),
+            ALPAKA: (ALPAKA, "1.0.0-dev"),
         },
     )

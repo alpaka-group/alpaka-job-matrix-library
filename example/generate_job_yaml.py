@@ -65,7 +65,7 @@ def job_image(job: Dict[str, Tuple[str, str]], container_version: float) -> str:
 
     if (
         ALPAKA_ACC_GPU_CUDA_ENABLE in job
-        and job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF
+        and job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF_VER
     ):
         # Cast cuda version shape. E.g. from 11.0 to 110
         container_url += "-cuda" + str(
@@ -76,7 +76,7 @@ def job_image(job: Dict[str, Tuple[str, str]], container_version: float) -> str:
 
     if (
         ALPAKA_ACC_GPU_HIP_ENABLE in job
-        and job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF
+        and job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF_VER
     ):
         container_url += "-rocm" + job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION]
 
@@ -124,14 +124,14 @@ def job_variables(job: Dict[str, Tuple[str, str]]) -> Dict[str, str]:
     # required to check, if the correct CUDA SDK is available
     if (
         ALPAKA_ACC_GPU_CUDA_ENABLE in job
-        and job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF
+        and job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF_VER
     ):
         variables["VIKUNJA_CI_CUDA_VER"] = job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION]
 
     # required to check, if the correct ROCm SDK is available
     if (
         ALPAKA_ACC_GPU_HIP_ENABLE in job
-        and job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF
+        and job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF_VER
     ):
         variables["VIKUNJA_CI_ROCM_VER"] = job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION]
 
@@ -140,14 +140,14 @@ def job_variables(job: Dict[str, Tuple[str, str]]) -> Dict[str, str]:
     for backend in BACKENDS_LIST:
         if backend in job:
             # since alpaka 0.9.0, the backend names starts with a lowercase `alpaka`
-            if job[ALPAKA][VERSION] == "develop" or pk_version.parse(
+            if job[ALPAKA][VERSION] == "1.0.0-dev" or pk_version.parse(
                 job[ALPAKA][VERSION]
             ) > pk_version.parse("0.8.0"):
                 backend_name = job[backend][NAME]
             else:
                 backend_name = job[backend][NAME].upper()
 
-            if job[backend][VERSION] == OFF:
+            if job[backend][VERSION] == OFF_VER:
                 backend_str += f"-D{backend_name}=OFF "
             else:
                 backend_str += f"-D{backend_name}=ON "
@@ -157,9 +157,12 @@ def job_variables(job: Dict[str, Tuple[str, str]]) -> Dict[str, str]:
 
     # simply copy name and version of the required software
     for parameter_name in [CMAKE, BOOST, ALPAKA]:
-        variables[f"VIKUNJA_CI_{get_env_var_name(parameter_name)}_VER"] = job[
-            parameter_name
-        ][VERSION]
+        if parameter_name == ALPAKA and job[parameter_name][VERSION] == "1.0.0-dev":
+            variables[f"VIKUNJA_CI_{get_env_var_name(parameter_name)}_VER"] = "develop"
+        else:
+            variables[f"VIKUNJA_CI_{get_env_var_name(parameter_name)}_VER"] = job[
+                parameter_name
+            ][VERSION]
 
     variables["VIKUNJA_CI_CXX_STANDARD"] = job[CXX_STANDARD][VERSION]
 
@@ -171,14 +174,14 @@ def job_variables(job: Dict[str, Tuple[str, str]]) -> Dict[str, str]:
 
     if (
         ALPAKA_ACC_GPU_HIP_ENABLE in job
-        and job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF
+        and job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF_VER
     ):
         # architecture of the Vega 64
         cmake_extra_arg += "-DALPAKA_HIP_ARCH=900 "
 
     if (
         ALPAKA_ACC_GPU_CUDA_ENABLE in job
-        and job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF
+        and job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF_VER
     ):
         # CI contains a Quadro P5000 (sm_61)
         cmake_extra_arg += "-DCMAKE_CUDA_ARCHITECTURES=61 "
@@ -201,9 +204,9 @@ def job_tags(job: Dict[str, Tuple[str, str]]) -> List[str]:
     # TODO: change back to correct tags
     return ["x86_64", "cpuonly"]
 
-    if job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF:
+    if job[ALPAKA_ACC_GPU_CUDA_ENABLE][VERSION] != OFF_VER:
         return ["x86_64", "cuda"]
-    if job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF:
+    if job[ALPAKA_ACC_GPU_HIP_ENABLE][VERSION] != OFF_VER:
         return ["x86_64", "rocm"]
     return ["x86_64", "cpuonly"]
 
@@ -264,7 +267,7 @@ def generate_job_yaml_list(
         List[Dict[str, Dict]]: List of GitLab-CI jobs. The key of a dict entry
         is the job name and the value is the body.
     """
-    job_matrix_yaml: Dict[str, Dict] = []
+    job_matrix_yaml: List[Dict[str, Dict]] = []
     for job in job_matrix:
         job_matrix_yaml.append(create_job(job, container_version))
 
