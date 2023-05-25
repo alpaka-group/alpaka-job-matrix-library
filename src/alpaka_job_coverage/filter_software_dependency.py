@@ -44,16 +44,19 @@ def software_dependency_filter(row: List) -> bool:
     ):
         parsed_nvcc_version = pk_version.parse(row[param_map[DEVICE_COMPILER]][VERSION])
 
-        # NVCC versions older than 11.0 does not support C++ 17
-        if (
-            parsed_nvcc_version < pk_version.parse("11.0")
-            and int(row[param_map[CXX_STANDARD]][VERSION]) > 14
-        ):
-            return False
-
-        # no NVCC version supports C++20
-        if int(row[param_map[CXX_STANDARD]][VERSION]) > 17:
-            return False
+        # definition of the tuple values: if the nvcc version of the first
+        # tuple is older than the cxx standard of the second value, it is not supported
+        nvcc_cxx_versions = [
+            ("11.0", 14),  # NVCC versions older than 11.0 does not support C++ 17
+            ("12.0", 17),  # NVCC versions older than 12.0 does not support C++ 20
+            ("13.0", 20),
+        ]  # NVCC 12.x does not support C++ 23 and NVCC 13.x is not released yet
+        for nvcc_version, cxx_version in nvcc_cxx_versions:
+            if (
+                parsed_nvcc_version < pk_version.parse(nvcc_version)
+                and int(row[param_map[CXX_STANDARD]][VERSION]) > cxx_version
+            ):
+                return False
 
     # clang 11 and 12 are not available in the Ubuntu 18.04 ppa
     if (
