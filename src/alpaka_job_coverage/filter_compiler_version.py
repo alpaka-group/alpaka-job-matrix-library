@@ -2,7 +2,7 @@
 """
 
 from alpaka_job_coverage.globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from alpaka_job_coverage.util import row_check_name, is_in_row
+from alpaka_job_coverage.util import row_check_name, row_check_version, is_in_row
 
 from packaging import version as pk_version
 
@@ -66,8 +66,14 @@ def compiler_version_filter(row: List) -> bool:
             ):
                 return False
 
-        # set the and lowest highest supported clang version for nvcc
         if row_check_name(row, HOST_COMPILER, "==", CLANG):
+            # disable clang as host compiler for nvcc 11.3 until 11.5
+            if row_check_version(
+                row, DEVICE_COMPILER, ">=", "11.3"
+            ) and row_check_version(row, DEVICE_COMPILER, "<=", "11.5"):
+                return False
+
+            # set the and lowest highest supported clang version for nvcc
             # check the maximum supported compiler version
             for combination in [
                 # (maximum_CUDA_SDK_version, "maximum_clang_version")
@@ -88,5 +94,10 @@ def compiler_version_filter(row: List) -> bool:
                         return False
                     else:
                         break
+
+    if row_check_name(row, DEVICE_COMPILER, "==", CLANG_CUDA):
+        # disable all clang versions older than 14 as CUDA Compiler
+        if row_check_version(row, DEVICE_COMPILER, "<", "14"):
+            return False
 
     return True

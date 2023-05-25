@@ -44,16 +44,19 @@ def software_dependency_filter(row: List) -> bool:
     ):
         parsed_nvcc_version = pk_version.parse(row[param_map[DEVICE_COMPILER]][VERSION])
 
-        # NVCC versions older than 11.0 does not support C++ 17
-        if (
-            parsed_nvcc_version < pk_version.parse("11.0")
-            and int(row[param_map[CXX_STANDARD]][VERSION]) > 14
-        ):
-            return False
-
-        # no NVCC version supports C++20
-        if int(row[param_map[CXX_STANDARD]][VERSION]) > 17:
-            return False
+        # definition of the tuple values: if the nvcc version of the first
+        # tuple is older than the cxx standard of the second value, it is not supported
+        nvcc_cxx_versions = [
+            ("11.0", 14),  # NVCC versions older than 11.0 does not support C++ 17
+            ("12.0", 17),  # NVCC versions older than 12.0 does not support C++ 20
+            ("13.0", 20),
+        ]  # NVCC 12.x does not support C++ 23 and NVCC 13.x is not released yet
+        for nvcc_version, cxx_version in nvcc_cxx_versions:
+            if (
+                parsed_nvcc_version < pk_version.parse(nvcc_version)
+                and int(row[param_map[CXX_STANDARD]][VERSION]) > cxx_version
+            ):
+                return False
 
     # clang 11 and 12 are not available in the Ubuntu 18.04 ppa
     if (
@@ -110,6 +113,13 @@ def software_dependency_filter(row: List) -> bool:
         row_check_version(row, UBUNTU, "!=", "20.04")
         and row_check_name(row, DEVICE_COMPILER, "==", HIPCC)
         and row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER)
+    ):
+        return False
+
+    # a bug in CMAKE 3.18 avoids the correct usage of the variable CMAKE_CUDA_ARCHITECTURE if the
+    # CUDA compiler is Clang++
+    if row_check_name(row, DEVICE_COMPILER, "==", CLANG_CUDA) and row_check_version(
+        row, CMAKE, "<", "3.19"
     ):
         return False
 
