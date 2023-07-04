@@ -14,9 +14,12 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-      - run: python setup.py install
-      - run: python example/example.py 3.0
-      - run: cat jobs.yml
+      - name: Install package
+        run: python setup.py install
+      - name: run unit tests
+        run: cd tests && python -m unittest && cd ..
+      - name: run integration test
+        run: python example/example.py 3.0 && cat jobs.yml
   check-version:
     if: github.ref != 'refs/heads/main'
     runs-on: ubuntu-latest
