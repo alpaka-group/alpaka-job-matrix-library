@@ -47,14 +47,15 @@ def software_dependency_filter(row: List) -> bool:
         # definition of the tuple values: if the nvcc version of the first
         # tuple is older than the cxx standard of the second value, it is not supported
         nvcc_cxx_versions = [
-            ("11.0", 14),  # NVCC versions older than 11.0 does not support C++ 17
-            ("12.0", 17),  # NVCC versions older than 12.0 does not support C++ 20
-            ("13.0", 20),
-        ]  # NVCC 12.x does not support C++ 23 and NVCC 13.x is not released yet
+            ("11.0", 17),  # NVCC versions older than 11.0 does not support C++ 17
+            ("12.0", 20),  # NVCC versions older than 12.0 does not support C++ 20
+            ("12.2", 23),  # NVCC 12.2 is not released yet, therefore we need to
+            # expect that it could support C++23
+        ]
         for nvcc_version, cxx_version in nvcc_cxx_versions:
             if (
                 parsed_nvcc_version < pk_version.parse(nvcc_version)
-                and int(row[param_map[CXX_STANDARD]][VERSION]) > cxx_version
+                and int(row[param_map[CXX_STANDARD]][VERSION]) >= cxx_version
             ):
                 return False
 

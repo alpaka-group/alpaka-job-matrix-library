@@ -48,10 +48,6 @@ def compiler_backend_filter(row: List) -> bool:
     ###########################
 
     if row_check_name(row, DEVICE_COMPILER, "==", NVCC):
-        # the CUDA backend needs to be defined
-        if backend_is_not_in_row(row, ALPAKA_ACC_GPU_CUDA_ENABLE):
-            return False
-
         # the nvcc compiler needs the same version, like the backend
         if row_check_backend_version(
             row,

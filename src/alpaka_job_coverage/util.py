@@ -1,4 +1,33 @@
 """Different support functions.
+
+The row type: Several utile functions to do different checks on the row 
+parameters. The type of the row is defined by the pairwise library and the 
+parameter types.
+Each element of the row have ether the type of Tuple[str, str], where the first 
+string is a name and the second string is a version number or the type 
+List[Tuple[str, str]], where tuple also stores a name and version combination. 
+The list type is only used for the backend values of the `backends` parameter.
+The position of the value decides, which parameter a value represent. For 
+example the first and second value can be ("gcc", "9"). Only the position 
+decides if the first value is the host compiler and second value the device 
+compiler or vice versa. 
+The global variable `param_map` implements a indirection which allows to 
+separate the ordering of the parameters from the algorithm. The `param_map` 
+needs to be initialized by the user at each application/test start. 
+For Example:
+    param_map[HOST_COMPILER] = 0
+    param_map[DEVICE_COMPILER] = 1
+
+Example for a row:
+    [('gcc', '6'), ('nvcc', '11.4'), 
+    [
+        ('alpaka_ACC_CPU_B_SEQ_T_SEQ_ENABLE', '1.0.0'), 
+        ('alpaka_ACC_CPU_B_OMP2_T_SEQ_ENABLE', '0.0.0'), 
+        ('alpaka_ACC_GPU_CUDA_ENABLE', '11.4'), 
+        ('alpaka_ACC_GPU_HIP_ENABLE', '0.0.0')
+    ], 
+    ('cmake', '3.19.8'), ('boost', '1.66.0'), ('alpaka', '0.6.1'), 
+    ('ubuntu', '20.04')]
 """
 
 import operator, re
@@ -121,12 +150,12 @@ def backend_is_not_in_row(row: List, backend: str) -> bool:
         backend (str): Name of the backend, which version should be compared.
 
     Returns:
-        bool: Return False, if backend is not in the row. If backend is in the row and
+        bool: Return True, if backend is not in the row. If backend is in the row and
         the backend name is in the backend list return False else True.
     """
 
     if not is_in_row(row, BACKENDS):
-        return False
+        return True
     else:
         for row_backend in row[param_map[BACKENDS]]:
             if row_backend[NAME] == backend:
@@ -286,3 +315,34 @@ def reorder_job_list_single_regex(
             new_job_list.append(job)
 
     return new_job_list
+
+
+@typechecked
+def is_supported_sw_version(name: str, version: str, verbose=True) -> bool:
+    def warning_text(text: str):
+        return "\033[1;33mWARNING: " + text + "\033[0m"
+
+    support_versions: Dict[str, Tuple[str, str]] = {
+        GCC: ("5", "13"),
+        CLANG: ("6.0", "15"),
+        NVCC: ("10.0", "12.1"),
+        HIPCC: ("4.3", "5.1"),
+        CMAKE: ("3.18", "3.22"),
+        BOOST: ("1.66.0", "1.78.0"),
+        CXX_STANDARD: ("14", "20"),
+    }
+
+    if name not in support_versions:
+        if verbose:
+            print(warning_text(f"{name} is an unknown software"))
+        return False
+    else:
+        parsed_version = pk_version.parse(version)
+        if parsed_version < pk_version.parse(
+            support_versions[name][0]
+        ) or parsed_version > pk_version.parse(support_versions[name][1]):
+            if verbose:
+                print(warning_text(f"{name} {version} is not supported"))
+            return False
+
+    return True
