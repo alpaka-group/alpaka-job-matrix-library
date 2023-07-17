@@ -37,34 +37,41 @@ def compiler_version_filter(row: List) -> bool:
 
         # set the and lowest highest supported gcc version for nvcc
         if row_check_name(row, HOST_COMPILER, "==", GCC):
-            # check the maximum supported compiler version
-            for combination in [
+            combinations = [
                 # (maximum_CUDA_SDK_version, "maximum_gcc_version")
-                ("11.6", "11"),
-                ("11.4", "10"),
+                ("12.1", "12"),
+                ("12.0", "12"),
+                ("11.4", "11"),
+                ("11.1", "10"),
                 ("11.0", "9"),
-                ("10.2", "8"),
+                ("10.1", "8"),
                 ("10.0", "7"),
-            ]:
-                if pk_version.parse(
-                    row[param_map[DEVICE_COMPILER]][VERSION]
-                ) >= pk_version.parse(combination[cuda_sdk_version]):
-                    if pk_version.parse(
-                        row[param_map[HOST_COMPILER]][VERSION]
-                    ) > pk_version.parse(combination[cuda_host_compiler_version]):
-                        return False
-                    else:
-                        break
+            ]
 
-            # since CUDA 11.4, the minimum supported GCC compiler is GCC 6
             if pk_version.parse(
                 row[param_map[DEVICE_COMPILER]][VERSION]
-            ) >= pk_version.parse("11.4") and pk_version.parse(
-                row[param_map[HOST_COMPILER]][VERSION]
-            ) < pk_version.parse(
-                "6"
-            ):
-                return False
+            ) <= pk_version.parse(combinations[0][cuda_sdk_version]):
+                # check the maximum supported compiler version
+                for combination in combinations:
+                    if pk_version.parse(
+                        row[param_map[DEVICE_COMPILER]][VERSION]
+                    ) >= pk_version.parse(combination[cuda_sdk_version]):
+                        if pk_version.parse(
+                            row[param_map[HOST_COMPILER]][VERSION]
+                        ) > pk_version.parse(combination[cuda_host_compiler_version]):
+                            return False
+                        else:
+                            break
+
+                # since CUDA 11.4, the minimum supported GCC compiler is GCC 6
+                if pk_version.parse(
+                    row[param_map[DEVICE_COMPILER]][VERSION]
+                ) >= pk_version.parse("11.4") and pk_version.parse(
+                    row[param_map[HOST_COMPILER]][VERSION]
+                ) < pk_version.parse(
+                    "6"
+                ):
+                    return False
 
         if row_check_name(row, HOST_COMPILER, "==", CLANG):
             # disable clang as host compiler for nvcc 11.3 until 11.5
@@ -73,27 +80,34 @@ def compiler_version_filter(row: List) -> bool:
             ) and row_check_version(row, DEVICE_COMPILER, "<=", "11.5"):
                 return False
 
-            # set the and lowest highest supported clang version for nvcc
-            # check the maximum supported compiler version
-            for combination in [
+            combinations = [
                 # (maximum_CUDA_SDK_version, "maximum_clang_version")
+                ("12.1", "15"),
+                ("12.0", "14"),
                 ("11.6", "13"),
                 ("11.4", "12"),
+                ("11.2", "11"),
                 ("11.1", "10"),
                 ("11.0", "9"),
                 ("10.1", "8"),
                 ("10.0", "6"),
-                ("9.2", "5"),
-            ]:
-                if pk_version.parse(
-                    row[param_map[DEVICE_COMPILER]][VERSION]
-                ) >= pk_version.parse(combination[cuda_sdk_version]):
+            ]
+
+            if pk_version.parse(
+                row[param_map[DEVICE_COMPILER]][VERSION]
+            ) <= pk_version.parse(combinations[0][cuda_sdk_version]):
+                # set the and lowest highest supported clang version for nvcc
+                # check the maximum supported compiler version
+                for combination in combinations:
                     if pk_version.parse(
-                        row[param_map[HOST_COMPILER]][VERSION]
-                    ) > pk_version.parse(combination[cuda_host_compiler_version]):
-                        return False
-                    else:
-                        break
+                        row[param_map[DEVICE_COMPILER]][VERSION]
+                    ) >= pk_version.parse(combination[cuda_sdk_version]):
+                        if pk_version.parse(
+                            row[param_map[HOST_COMPILER]][VERSION]
+                        ) > pk_version.parse(combination[cuda_host_compiler_version]):
+                            return False
+                        else:
+                            break
 
     if row_check_name(row, DEVICE_COMPILER, "==", CLANG_CUDA):
         # disable all clang versions older than 14 as CUDA Compiler
