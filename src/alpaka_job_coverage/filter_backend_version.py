@@ -114,10 +114,6 @@ def compiler_backend_filter(row: List) -> bool:
 
     # the HIP backend needs to be enabled and has the same version number
     if row_check_name(row, DEVICE_COMPILER, "==", HIPCC):
-        # the HIP backend needs to be defined
-        if backend_is_not_in_row(row, ALPAKA_ACC_GPU_HIP_ENABLE):
-            return False
-
         if row_check_backend_version(
             row,
             ALPAKA_ACC_GPU_HIP_ENABLE,

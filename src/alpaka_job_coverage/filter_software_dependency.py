@@ -124,4 +124,16 @@ def software_dependency_filter(row: List) -> bool:
     ):
         return False
 
+    # disable nvcc 11.3 + gcc 10 + Ubuntu 20.04
+    # Ubuntu 20.04 provides only gcc 10.3 and not 10.4 or 10.5
+    # this combination does not work: https://github.com/alpaka-group/alpaka/issues/1297
+    if (
+        row_check_name(row, DEVICE_COMPILER, "==", NVCC)
+        and row_check_version(row, DEVICE_COMPILER, "==", "11.3")
+        and row_check_name(row, HOST_COMPILER, "==", GCC)
+        and row_check_version(row, HOST_COMPILER, "==", "10")
+        and row_check_version(row, UBUNTU, "==", "20.04")
+    ):
+        return False
+
     return True
