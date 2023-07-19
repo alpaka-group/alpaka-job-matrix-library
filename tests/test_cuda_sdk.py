@@ -513,3 +513,576 @@ class TestNvccCxxStandard(unittest.TestCase):
                         software_dependency_filter(comb),
                         f"NVCC {nvcc_version} + CXX {cxx_version}",
                     )
+
+
+# tests for Clang as CUDA compiler
+class TestClangCUDA(unittest.TestCase):
+    def setUp(self):
+        global param_map
+        # set param_map, that filters expect the following parameters in the
+        # order
+        param_map[HOST_COMPILER] = 0
+        param_map[DEVICE_COMPILER] = 1
+        param_map[BACKENDS] = 2
+        # the following parameters are not used in this test
+        param_map[CXX_STANDARD] = 3
+        param_map[UBUNTU] = 4
+        param_map[CMAKE] = 5
+
+    def setDown(self):
+        global param_map
+        # reset param_map for following up tests
+        param_map = {}
+
+    # standalone CLANG_CUDA as host compiler should pass all tests
+    def test_host_compiler_name(self):
+        comb = [(CLANG_CUDA, "99")]
+
+        self.assertTrue(general_compiler_filter(comb))
+        self.assertTrue(compiler_version_filter(comb))
+        self.assertTrue(compiler_backend_filter(comb))
+        self.assertTrue(software_dependency_filter(comb))
+        self.assertTrue(full_filter_chain(comb))
+
+    # CLANG_CUDA as host compiler can be only used with CLANG_CUDA as device
+    # compiler an vice vera
+    def test_host_device_compiler_name(self):
+        valid_comb = [(CLANG_CUDA, "99"), (CLANG_CUDA, "99")]
+
+        self.assertTrue(general_compiler_filter(valid_comb))
+        self.assertTrue(compiler_version_filter(valid_comb))
+        self.assertTrue(compiler_backend_filter(valid_comb))
+        self.assertTrue(software_dependency_filter(valid_comb))
+        self.assertTrue(full_filter_chain(valid_comb))
+
+        invalid_combs = [
+            [(CLANG_CUDA, "99"), (GCC, "99")],
+            [(CLANG_CUDA, "99"), (CLANG, "99")],
+            [(CLANG_CUDA, "99"), (HIPCC, "99")],
+            [(CLANG_CUDA, "99"), (NVCC, "99")],
+            [(GCC, "99"), (CLANG_CUDA, "99")],
+            [(CLANG, "99"), (CLANG_CUDA, "99")],
+            [(HIPCC, "99"), (CLANG_CUDA, "99")],
+            [(NVCC, "99"), (CLANG_CUDA, "99")],
+        ]
+
+        for comb in invalid_combs:
+            self.assertFalse(
+                general_compiler_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
+            )
+            self.assertTrue(
+                compiler_version_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
+            )
+            self.assertTrue(
+                compiler_backend_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
+            )
+            self.assertTrue(
+                software_dependency_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
+            )
+            self.assertFalse(
+                full_filter_chain(comb),
+                f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
+            )
+
+    # host and device compiler needs to have the same version number
+    def test_host_device_compiler_version(self):
+        valid_combs = [
+            [(CLANG_CUDA, "14"), (CLANG_CUDA, "14")],
+            [(CLANG_CUDA, "16"), (CLANG_CUDA, "16")],
+            [(CLANG_CUDA, "20"), (CLANG_CUDA, "20")],
+            [(CLANG_CUDA, "99"), (CLANG_CUDA, "99")],
+        ]
+
+        for comb in valid_combs:
+            self.assertTrue(
+                general_compiler_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
+            )
+            self.assertTrue(
+                compiler_version_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
+            )
+            self.assertTrue(
+                compiler_backend_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
+            )
+            self.assertTrue(
+                software_dependency_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
+            )
+            self.assertTrue(
+                full_filter_chain(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
+            )
+
+        invalid_combs = [
+            [(CLANG_CUDA, "16"), (CLANG_CUDA, "17")],
+            [(CLANG_CUDA, "21"), (CLANG_CUDA, "20")],
+            # only Clang 14 and newer are supported as CUDA compiler
+            [(CLANG_CUDA, "9"), (CLANG_CUDA, "9")],
+            [(CLANG_CUDA, "13"), (CLANG_CUDA, "13")],
+        ]
+
+        for comb in invalid_combs:
+            self.assertTrue(
+                general_compiler_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
+            )
+            self.assertFalse(
+                compiler_version_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
+            )
+            self.assertTrue(
+                compiler_backend_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
+            )
+            self.assertTrue(
+                software_dependency_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
+            )
+            self.assertFalse(
+                full_filter_chain(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
+            )
+
+    # the CUDA backend needs to enabled and Clang needs to support the CUDA
+    # SDK
+    def test_host_device_compiler_backend(self):
+        valid_combs = [
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [(ALPAKA_ACC_GPU_CUDA_ENABLE, "11.5")],
+            ],
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [(ALPAKA_ACC_GPU_CUDA_ENABLE, "11.2")],
+            ],
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [
+                    (ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLE, ON_VER),
+                    (ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE, ON_VER),
+                    (ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE, OFF_VER),
+                    (ALPAKA_ACC_GPU_CUDA_ENABLE, "11.2"),
+                    (ALPAKA_ACC_GPU_HIP_ENABLE, OFF_VER),
+                ],
+            ],
+        ]
+
+        for comb in valid_combs:
+            self.assertTrue(
+                general_compiler_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"BACKENDS: {comb[2]}",
+            )
+            self.assertTrue(
+                compiler_version_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"BACKENDS: {comb[2]}",
+            )
+            self.assertTrue(
+                compiler_backend_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"BACKENDS: {comb[2]}",
+            )
+            self.assertTrue(
+                software_dependency_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"BACKENDS: {comb[2]}",
+            )
+            self.assertTrue(
+                full_filter_chain(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"BACKENDS: {comb[2]}",
+            )
+
+        invalid_combs = [
+            # CUDA backend needs to be enabled
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [(ALPAKA_ACC_GPU_CUDA_ENABLE, OFF_VER)],
+            ],
+            # CUDA backend needs to be supported
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [(ALPAKA_ACC_GPU_CUDA_ENABLE, "12.0")],
+            ],
+            # HIP backend cannot be enabled, when CLANG_CUDA is used
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [
+                    (ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLE, ON_VER),
+                    (ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE, ON_VER),
+                    (ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE, OFF_VER),
+                    (ALPAKA_ACC_GPU_CUDA_ENABLE, "11.2"),
+                    (ALPAKA_ACC_GPU_HIP_ENABLE, "5.0"),
+                ],
+            ],
+        ]
+
+        for comb in invalid_combs:
+            self.assertTrue(
+                general_compiler_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"BACKENDS: {comb[2]}",
+            )
+            self.assertTrue(
+                compiler_version_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"BACKENDS: {comb[2]}",
+            )
+            self.assertFalse(
+                compiler_backend_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"BACKENDS: {comb[2]}",
+            )
+            self.assertTrue(
+                software_dependency_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"BACKENDS: {comb[2]}",
+            )
+            self.assertFalse(
+                full_filter_chain(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"BACKENDS: {comb[2]}",
+            )
+
+    # test all supported Clang CUDA SDK combinations
+    def test_all_clang_cuda_version_combinations(self):
+        cuda_versions = [
+            9.0,
+            9.1,
+            9.2,
+            10.0,
+            10.1,
+            10.2,
+            11.0,
+            11.1,
+            11.2,
+            11.3,
+            11.4,
+            11.5,
+            11.6,
+            11.7,
+            11.8,
+            12.0,
+            12.1,
+        ]
+
+        # key: clang version
+        # value: max supported CUDA SDK
+        supported_versions = {
+            7: 9.2,
+            8: 10,
+            9: 10.1,
+            10: 10.1,
+            11: 11.0,
+            12: 11.0,
+            13: 11.2,
+            14: 11.5,
+            15: 11.5,
+        }
+
+        for clang_version in supported_versions.keys():
+            for cuda_version in cuda_versions:
+                comb = [
+                    (CLANG_CUDA, str(clang_version)),
+                    (CLANG_CUDA, str(clang_version)),
+                    [(ALPAKA_ACC_GPU_CUDA_ENABLE, str(cuda_version))],
+                ]
+
+                if cuda_version > supported_versions[clang_version]:
+                    self.assertFalse(
+                        compiler_backend_filter(comb),
+                        f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                        f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                        f"BACKENDS: {comb[2]}",
+                    )
+                else:
+                    self.assertTrue(
+                        compiler_backend_filter(comb),
+                        f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                        f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                        f"BACKENDS: {comb[2]}",
+                    )
+
+        # test if combination of non released clang version and released CUDA
+        # SDK is allowed
+        self.assertTrue(
+            compiler_backend_filter(
+                [
+                    (CLANG_CUDA, "30"),
+                    (CLANG_CUDA, "30"),
+                    [(ALPAKA_ACC_GPU_CUDA_ENABLE, "11.5")],
+                ]
+            ),
+            f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+            f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+            f"BACKENDS: {comb[2]}",
+        )
+
+        # test if combination of non released clang version and non released
+        # CUDA SDK is allowed
+        self.assertTrue(
+            compiler_backend_filter(
+                [
+                    (CLANG_CUDA, "30"),
+                    (CLANG_CUDA, "30"),
+                    [(ALPAKA_ACC_GPU_CUDA_ENABLE, "30.0")],
+                ]
+            ),
+            f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+            f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+            f"BACKENDS: {comb[2]}",
+        )
+
+        # test if combination of released clang version and non released
+        # CUDA SDK is not allowed
+        self.assertFalse(
+            compiler_backend_filter(
+                [
+                    (CLANG_CUDA, "15"),
+                    (CLANG_CUDA, "15"),
+                    [(ALPAKA_ACC_GPU_CUDA_ENABLE, "30.0")],
+                ]
+            ),
+            f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+            f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+            f"BACKENDS: {comb[2]}",
+        )
+
+    # Clang 9 and older does not support C++ 20.
+    def test_cxx_support(self):
+        for clang_version in range(7, 16):
+            for cxx_version in [17, 20]:
+                comb = [
+                    (CLANG_CUDA, str(clang_version)),
+                    (CLANG_CUDA, str(clang_version)),
+                    [(ALPAKA_ACC_GPU_CUDA_ENABLE, "9.2")],
+                    (CXX_STANDARD, str(cxx_version)),
+                ]
+                self.assertTrue(
+                    general_compiler_filter(comb),
+                    f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                    f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                    f"C++: {comb[3]}",
+                )
+
+                # does not test compiler_version_filter(), because of the filter
+                # rule, that Clang 13 and older is not allowed as CUDA compiler
+
+                self.assertTrue(
+                    compiler_backend_filter(comb),
+                    f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                    f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                    f"C++: {comb[3]}",
+                )
+
+                if clang_version <= 9 and cxx_version > 17:
+                    self.assertFalse(
+                        software_dependency_filter(comb),
+                        f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                        f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                        f"C++: {comb[3]}",
+                    )
+                    self.assertFalse(
+                        full_filter_chain(comb),
+                        f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                        f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                        f"C++: {comb[3]}",
+                    )
+                else:
+                    self.assertTrue(
+                        software_dependency_filter(comb),
+                        f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                        f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                        f"C++: {comb[3]}",
+                    )
+
+    # Clang 11 and 12 is not available in the Ubuntu 18.04 ppa
+    def test_ubuntu1804_ppa(self):
+        for clang_version in range(7, 16):
+            comb = [
+                (CLANG_CUDA, str(clang_version)),
+                (CLANG_CUDA, str(clang_version)),
+                [(ALPAKA_ACC_GPU_CUDA_ENABLE, "9.2")],
+                (CXX_STANDARD, "17"),
+                (UBUNTU, "18.04"),
+            ]
+
+            self.assertTrue(
+                general_compiler_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"Ubuntu: {comb[4]}",
+            )
+
+            self.assertTrue(
+                compiler_backend_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"Ubuntu: {comb[4]}",
+            )
+
+            if clang_version == 11 or clang_version == 12:
+                self.assertFalse(
+                    software_dependency_filter(comb),
+                    f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                    f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                    f"Ubuntu: {comb[4]}",
+                )
+                self.assertFalse(
+                    full_filter_chain(comb),
+                    f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                    f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                    f"Ubuntu: {comb[4]}",
+                )
+            else:
+                self.assertTrue(
+                    software_dependency_filter(comb),
+                    f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                    f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                    f"Ubuntu: {comb[4]}",
+                )
+
+    # CMake 3.18 and older does not support Clang as CUDA compiler
+    def test_cmake_version(self):
+        valid_combs = [
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [(ALPAKA_ACC_GPU_CUDA_ENABLE, "11.2")],
+                (CXX_STANDARD, "17"),
+                (UBUNTU, "20.04"),
+                (CMAKE, "3.19"),
+            ],
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [(ALPAKA_ACC_GPU_CUDA_ENABLE, "11.2")],
+                (CXX_STANDARD, "17"),
+                (UBUNTU, "20.04"),
+                (CMAKE, "3.22"),
+            ],
+        ]
+
+        for comb in valid_combs:
+            self.assertTrue(
+                general_compiler_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"CMAKE: {comb[5][1]}",
+            )
+            self.assertTrue(
+                compiler_version_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"CMAKE: {comb[5][1]}",
+            )
+            self.assertTrue(
+                compiler_backend_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"CMAKE: {comb[5][1]}",
+            )
+            self.assertTrue(
+                software_dependency_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"CMAKE: {comb[5][1]}",
+            )
+            self.assertTrue(
+                full_filter_chain(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"CMAKE: {comb[5][1]}",
+            )
+
+        invalid_combs = [
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [(ALPAKA_ACC_GPU_CUDA_ENABLE, "11.2")],
+                (CXX_STANDARD, "17"),
+                (UBUNTU, "20.04"),
+                (CMAKE, "3.18"),
+            ],
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [(ALPAKA_ACC_GPU_CUDA_ENABLE, "11.2")],
+                (CXX_STANDARD, "17"),
+                (UBUNTU, "20.04"),
+                (CMAKE, "3.17"),
+            ],
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [(ALPAKA_ACC_GPU_CUDA_ENABLE, "11.2")],
+                (CXX_STANDARD, "17"),
+                (UBUNTU, "20.04"),
+                (CMAKE, "3.18.3"),
+            ],
+        ]
+
+        for comb in invalid_combs:
+            self.assertTrue(
+                general_compiler_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"CMAKE: {comb[5][1]}",
+            )
+            self.assertTrue(
+                compiler_version_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"CMAKE: {comb[5][1]}",
+            )
+            self.assertTrue(
+                compiler_backend_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"CMAKE: {comb[5][1]}",
+            )
+            self.assertFalse(
+                software_dependency_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"CMAKE: {comb[5][1]}",
+            )
+            self.assertFalse(
+                full_filter_chain(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"CMAKE: {comb[5][1]}",
+            )
