@@ -27,13 +27,13 @@ def get_simple_expected_values() -> Dict[str, Dict[str, List[str]]]:
     }
 
     expected_values[ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE] = {
-        ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE: ["on", "off"],
+        ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE: [ON_VER, OFF_VER],
     }
     expected_values[ALPAKA_ACC_GPU_CUDA_ENABLE] = {
-        ALPAKA_ACC_GPU_CUDA_ENABLE: ["off"] + versions.sw_versions[NVCC],
+        ALPAKA_ACC_GPU_CUDA_ENABLE: [OFF_VER] + versions.sw_versions[NVCC],
     }
     expected_values[ALPAKA_ACC_GPU_HIP_ENABLE] = {
-        ALPAKA_ACC_GPU_HIP_ENABLE: ["off"] + versions.sw_versions[HIPCC],
+        ALPAKA_ACC_GPU_HIP_ENABLE: [OFF_VER] + versions.sw_versions[HIPCC],
     }
 
     for sw_name in [CMAKE, BOOST, ALPAKA, UBUNTU, CXX_STANDARD]:
@@ -60,16 +60,16 @@ def get_complex_expected_values() -> Dict[str, Dict[str, List[str]]]:
         **{NVCC: []},
     }
     expected_values[ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE] = {
-        ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE: ["on", "off"],
+        ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE: [ON_VER, OFF_VER],
     }
     expected_values[ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE] = {
-        ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE: ["on", "off"],
+        ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE: [ON_VER, OFF_VER],
     }
     expected_values[ALPAKA_ACC_GPU_CUDA_ENABLE] = {
-        ALPAKA_ACC_GPU_CUDA_ENABLE: ["off"] + versions.sw_versions[NVCC],
+        ALPAKA_ACC_GPU_CUDA_ENABLE: [OFF_VER] + versions.sw_versions[NVCC],
     }
     expected_values[ALPAKA_ACC_GPU_HIP_ENABLE] = {
-        ALPAKA_ACC_GPU_HIP_ENABLE: ["off"] + versions.sw_versions[HIPCC],
+        ALPAKA_ACC_GPU_HIP_ENABLE: [OFF_VER] + versions.sw_versions[HIPCC],
     }
 
     return expected_values
