@@ -66,10 +66,6 @@ def compiler_backend_filter(row: List) -> bool:
     ###########################
 
     if row_check_name(row, DEVICE_COMPILER, "==", CLANG_CUDA):
-        # the CUDA backend needs to be defined
-        if backend_is_not_in_row(row, ALPAKA_ACC_GPU_CUDA_ENABLE):
-            return False
-
         # the CUDA backend needs to be enabled
         if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "==", OFF_VER):
             return False
