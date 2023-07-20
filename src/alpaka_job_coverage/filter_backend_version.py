@@ -8,6 +8,27 @@ from alpaka_job_coverage.util import (
     row_check_backend_version,
     backend_is_not_in_row,
 )
+from typing import List, Tuple, Union
+from typeguard import typechecked
+
+
+@typechecked
+def compiler_backend_filter_typed(
+    row: List[Union[Tuple[str, str], List[Tuple[str, str]]]]
+) -> bool:
+    """Type checked version of compiler_backend_filter(). Should be only used for
+    testing or tooling. The type check adds a big overhead, which slows down
+    pair-wise generator by the factor 30.
+
+    Args:
+        row (List[Union[Tuple[str, str], List[Tuple[str, str]]]]): Combination
+        to verify. The row can contain up to all combination fields and at least
+         two items.
+
+    Returns:
+        bool: True, if combination is valid, otherwise False.
+    """
+    return compiler_backend_filter(row)
 
 
 def compiler_backend_filter(row: List) -> bool:

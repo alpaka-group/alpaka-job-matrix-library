@@ -10,6 +10,27 @@ from alpaka_job_coverage.util import (
 )
 
 from packaging import version as pk_version
+from typing import List, Tuple, Union
+from typeguard import typechecked
+
+
+@typechecked
+def software_dependency_filter_typed(
+    row: List[Union[Tuple[str, str], List[Tuple[str, str]]]]
+) -> bool:
+    """Type checked version of software_dependency_filter(). Should be only used for
+    testing or tooling. The type check adds a big overhead, which slows down
+    pair-wise generator by the factor 30.
+
+    Args:
+        row (List[Union[Tuple[str, str], List[Tuple[str, str]]]]): Combination
+        to verify. The row can contain up to all combination fields and at least
+         two items.
+
+    Returns:
+        bool: True, if combination is valid, otherwise False.
+    """
+    return software_dependency_filter(row)
 
 
 def software_dependency_filter(row: List) -> bool:
@@ -124,12 +145,17 @@ def software_dependency_filter(row: List) -> bool:
     ):
         return False
 
-    # disable nvcc 11.3 + gcc 10 + Ubuntu 20.04
+    # disable nvcc 11.0-11.3 + gcc 10 + Ubuntu 20.04
     # Ubuntu 20.04 provides only gcc 10.3 and not 10.4 or 10.5
     # this combination does not work: https://github.com/alpaka-group/alpaka/issues/1297
     if (
         row_check_name(row, DEVICE_COMPILER, "==", NVCC)
-        and row_check_version(row, DEVICE_COMPILER, "==", "11.3")
+        and (
+            row_check_version(row, DEVICE_COMPILER, "==", "11.0")
+            or row_check_version(row, DEVICE_COMPILER, "==", "11.1")
+            or row_check_version(row, DEVICE_COMPILER, "==", "11.2")
+            or row_check_version(row, DEVICE_COMPILER, "==", "11.3")
+        )
         and row_check_name(row, HOST_COMPILER, "==", GCC)
         and row_check_version(row, HOST_COMPILER, "==", "10")
         and row_check_version(row, UBUNTU, "==", "20.04")

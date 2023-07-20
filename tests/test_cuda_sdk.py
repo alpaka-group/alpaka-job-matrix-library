@@ -1,18 +1,20 @@
 import unittest
 
-from alpaka_job_coverage.filter_compiler_name import general_compiler_filter
-from alpaka_job_coverage.filter_compiler_version import compiler_version_filter
-from alpaka_job_coverage.filter_backend_version import compiler_backend_filter
-from alpaka_job_coverage.filter_software_dependency import software_dependency_filter
+from alpaka_job_coverage.filter_compiler_name import general_compiler_filter_typed
+from alpaka_job_coverage.filter_compiler_version import compiler_version_filter_typed
+from alpaka_job_coverage.filter_backend_version import compiler_backend_filter_typed
+from alpaka_job_coverage.filter_software_dependency import (
+    software_dependency_filter_typed,
+)
 from alpaka_job_coverage.globals import *
 
 
 def full_filter_chain(row) -> bool:
     return (
-        general_compiler_filter(row)
-        and compiler_version_filter(row)
-        and compiler_backend_filter(row)
-        and software_dependency_filter(row)
+        general_compiler_filter_typed(row)
+        and compiler_version_filter_typed(row)
+        and compiler_backend_filter_typed(row)
+        and software_dependency_filter_typed(row)
     )
 
 
@@ -39,7 +41,7 @@ class TestHostDeviceCompiler(unittest.TestCase):
         ]
 
         for comb in valid_combs:
-            self.assertTrue(general_compiler_filter(comb))
+            self.assertTrue(general_compiler_filter_typed(comb))
 
         invalid_combs = [
             # NVCC is not allowed as host compiler
@@ -52,7 +54,7 @@ class TestHostDeviceCompiler(unittest.TestCase):
         ]
 
         for comb in invalid_combs:
-            self.assertFalse(general_compiler_filter(comb))
+            self.assertFalse(general_compiler_filter_typed(comb))
 
 
 class TestGeneralFilterFunctionality(unittest.TestCase):
@@ -64,7 +66,7 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
         param_map[DEVICE_COMPILER] = 1
         param_map[BACKENDS] = 2
         # UBUNTU and CXX_STANDARD are only required, because
-        # software_dependency_filter do a look up in param_map for it
+        # software_dependency_filter_typed do a look up in param_map for it
         param_map[CXX_STANDARD] = 3
         param_map[UBUNTU] = 4
 
@@ -74,53 +76,53 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
         param_map = {}
 
     def test_if_backend_is_not_set(self):
-        # general_compiler_filter should be always return true, because
+        # general_compiler_filter_typed should be always return true, because
         # GCC is a valid host compiler and NVCC a valid device compiler
 
-        # compiler_backend_filter should always return true for the valid
+        # compiler_backend_filter_typed should always return true for the valid
         # combination, because if the backend parameter
         # (ALPAKA_ACC_GPU_CUDA_ENABLE, "11.2") is added, it becomes a valid
         # combination
 
-        # compiler_version_filter filters invalid combination depending of
+        # compiler_version_filter_typed filters invalid combination depending of
         # host and device compiler version
 
-        # no rule in software_dependency_filter should affect this test
+        # no rule in software_dependency_filter_typed should affect this test
 
         comb_valid_1 = [(GCC, "9"), (NVCC, "11.2")]
 
-        self.assertTrue(general_compiler_filter(comb_valid_1))
-        self.assertTrue(compiler_backend_filter(comb_valid_1))
-        self.assertTrue(compiler_version_filter(comb_valid_1))
-        self.assertTrue(software_dependency_filter(comb_valid_1))
+        self.assertTrue(general_compiler_filter_typed(comb_valid_1))
+        self.assertTrue(compiler_backend_filter_typed(comb_valid_1))
+        self.assertTrue(compiler_version_filter_typed(comb_valid_1))
+        self.assertTrue(software_dependency_filter_typed(comb_valid_1))
         self.assertTrue(full_filter_chain(comb_valid_1))
 
         comb_invalid_1 = [(GCC, "13"), (NVCC, "11.2")]
 
-        self.assertTrue(general_compiler_filter(comb_invalid_1))
-        self.assertTrue(compiler_backend_filter(comb_invalid_1))
-        self.assertFalse(compiler_version_filter(comb_invalid_1))
-        self.assertTrue(software_dependency_filter(comb_invalid_1))
+        self.assertTrue(general_compiler_filter_typed(comb_invalid_1))
+        self.assertTrue(compiler_backend_filter_typed(comb_invalid_1))
+        self.assertFalse(compiler_version_filter_typed(comb_invalid_1))
+        self.assertTrue(software_dependency_filter_typed(comb_invalid_1))
         self.assertFalse(full_filter_chain(comb_invalid_1))
 
         comb_valid_2 = [(CLANG, "9"), (NVCC, "11.2")]
 
-        self.assertTrue(general_compiler_filter(comb_valid_2))
-        self.assertTrue(compiler_backend_filter(comb_valid_2))
-        self.assertTrue(compiler_version_filter(comb_valid_2))
-        self.assertTrue(software_dependency_filter(comb_valid_2))
+        self.assertTrue(general_compiler_filter_typed(comb_valid_2))
+        self.assertTrue(compiler_backend_filter_typed(comb_valid_2))
+        self.assertTrue(compiler_version_filter_typed(comb_valid_2))
+        self.assertTrue(software_dependency_filter_typed(comb_valid_2))
         self.assertTrue(full_filter_chain(comb_valid_2))
 
         comb_invalid_2 = [(CLANG, "17"), (NVCC, "11.2")]
 
-        self.assertTrue(general_compiler_filter(comb_invalid_2))
-        self.assertTrue(compiler_backend_filter(comb_invalid_2))
-        self.assertFalse(compiler_version_filter(comb_invalid_2))
-        self.assertTrue(software_dependency_filter(comb_invalid_2))
+        self.assertTrue(general_compiler_filter_typed(comb_invalid_2))
+        self.assertTrue(compiler_backend_filter_typed(comb_invalid_2))
+        self.assertFalse(compiler_version_filter_typed(comb_invalid_2))
+        self.assertTrue(software_dependency_filter_typed(comb_invalid_2))
         self.assertFalse(full_filter_chain(comb_invalid_2))
 
     def test_if_backend_is_disabled(self):
-        # because the backend is off, compiler_backend_filter should return
+        # because the backend is off, compiler_backend_filter_typed should return
         # False every time
 
         comb_valid_1 = [
@@ -129,10 +131,10 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
             [(ALPAKA_ACC_GPU_CUDA_ENABLE, OFF_VER)],
         ]
 
-        self.assertTrue(general_compiler_filter(comb_valid_1))
-        self.assertFalse(compiler_backend_filter(comb_valid_1))
-        self.assertTrue(compiler_version_filter(comb_valid_1))
-        self.assertTrue(software_dependency_filter(comb_valid_1))
+        self.assertTrue(general_compiler_filter_typed(comb_valid_1))
+        self.assertFalse(compiler_backend_filter_typed(comb_valid_1))
+        self.assertTrue(compiler_version_filter_typed(comb_valid_1))
+        self.assertTrue(software_dependency_filter_typed(comb_valid_1))
         self.assertFalse(full_filter_chain(comb_valid_1))
 
         comb_valid_2 = [
@@ -145,10 +147,10 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
             ],
         ]
 
-        self.assertTrue(general_compiler_filter(comb_valid_2))
-        self.assertFalse(compiler_backend_filter(comb_valid_2))
-        self.assertTrue(compiler_version_filter(comb_valid_2))
-        self.assertTrue(software_dependency_filter(comb_valid_2))
+        self.assertTrue(general_compiler_filter_typed(comb_valid_2))
+        self.assertFalse(compiler_backend_filter_typed(comb_valid_2))
+        self.assertTrue(compiler_version_filter_typed(comb_valid_2))
+        self.assertTrue(software_dependency_filter_typed(comb_valid_2))
         self.assertFalse(full_filter_chain(comb_valid_2))
 
         comb_valid_3 = [
@@ -161,10 +163,10 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
             ],
         ]
 
-        self.assertTrue(general_compiler_filter(comb_valid_3))
-        self.assertFalse(compiler_backend_filter(comb_valid_3))
-        self.assertTrue(compiler_version_filter(comb_valid_3))
-        self.assertTrue(software_dependency_filter(comb_valid_3))
+        self.assertTrue(general_compiler_filter_typed(comb_valid_3))
+        self.assertFalse(compiler_backend_filter_typed(comb_valid_3))
+        self.assertTrue(compiler_version_filter_typed(comb_valid_3))
+        self.assertTrue(software_dependency_filter_typed(comb_valid_3))
         self.assertFalse(full_filter_chain(comb_valid_3))
 
         comb_invalid_1 = [
@@ -173,10 +175,10 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
             [(ALPAKA_ACC_GPU_CUDA_ENABLE, OFF_VER)],
         ]
 
-        self.assertTrue(general_compiler_filter(comb_invalid_1))
-        self.assertFalse(compiler_backend_filter(comb_invalid_1))
-        self.assertFalse(compiler_version_filter(comb_invalid_1))
-        self.assertTrue(software_dependency_filter(comb_invalid_1))
+        self.assertTrue(general_compiler_filter_typed(comb_invalid_1))
+        self.assertFalse(compiler_backend_filter_typed(comb_invalid_1))
+        self.assertFalse(compiler_version_filter_typed(comb_invalid_1))
+        self.assertTrue(software_dependency_filter_typed(comb_invalid_1))
         self.assertFalse(full_filter_chain(comb_invalid_1))
 
         comb_invalid_2 = [
@@ -189,10 +191,10 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
             ],
         ]
 
-        self.assertTrue(general_compiler_filter(comb_invalid_2))
-        self.assertFalse(compiler_backend_filter(comb_invalid_2))
-        self.assertFalse(compiler_version_filter(comb_invalid_2))
-        self.assertTrue(software_dependency_filter(comb_invalid_2))
+        self.assertTrue(general_compiler_filter_typed(comb_invalid_2))
+        self.assertFalse(compiler_backend_filter_typed(comb_invalid_2))
+        self.assertFalse(compiler_version_filter_typed(comb_invalid_2))
+        self.assertTrue(software_dependency_filter_typed(comb_invalid_2))
         self.assertFalse(full_filter_chain(comb_invalid_2))
 
         comb_invalid_3 = [
@@ -205,10 +207,10 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
             ],
         ]
 
-        self.assertTrue(general_compiler_filter(comb_invalid_3))
-        self.assertFalse(compiler_backend_filter(comb_invalid_3))
-        self.assertFalse(compiler_version_filter(comb_invalid_3))
-        self.assertTrue(software_dependency_filter(comb_invalid_3))
+        self.assertTrue(general_compiler_filter_typed(comb_invalid_3))
+        self.assertFalse(compiler_backend_filter_typed(comb_invalid_3))
+        self.assertFalse(compiler_version_filter_typed(comb_invalid_3))
+        self.assertTrue(software_dependency_filter_typed(comb_invalid_3))
         self.assertFalse(full_filter_chain(comb_invalid_3))
 
     def test_backend_versions(self):
@@ -219,14 +221,14 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
                 (NVCC, version),
                 [(ALPAKA_ACC_GPU_CUDA_ENABLE, version)],
             ]
-            self.assertTrue(compiler_backend_filter(comb1))
+            self.assertTrue(compiler_backend_filter_typed(comb1))
 
             comb2 = [
                 (CLANG, "9"),
                 (NVCC, version),
                 [(ALPAKA_ACC_GPU_CUDA_ENABLE, version)],
             ]
-            self.assertTrue(compiler_backend_filter(comb2))
+            self.assertTrue(compiler_backend_filter_typed(comb2))
 
             comb3 = [
                 (GCC, "9"),
@@ -237,7 +239,7 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
                     (ALPAKA_ACC_GPU_CUDA_ENABLE, version),
                 ],
             ]
-            self.assertTrue(compiler_backend_filter(comb3))
+            self.assertTrue(compiler_backend_filter_typed(comb3))
 
             comb4 = [
                 (CLANG, "9"),
@@ -248,7 +250,7 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
                     (ALPAKA_ACC_GPU_CUDA_ENABLE, version),
                 ],
             ]
-            self.assertTrue(compiler_backend_filter(comb4))
+            self.assertTrue(compiler_backend_filter_typed(comb4))
 
         for nvcc_version, backend_version in [
             ("10.1", "10.2"),
@@ -260,14 +262,14 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
                 (NVCC, nvcc_version),
                 [(ALPAKA_ACC_GPU_CUDA_ENABLE, backend_version)],
             ]
-            self.assertFalse(compiler_backend_filter(comb1))
+            self.assertFalse(compiler_backend_filter_typed(comb1))
 
             comb2 = [
                 (CLANG, "9"),
                 (NVCC, nvcc_version),
                 [(ALPAKA_ACC_GPU_CUDA_ENABLE, backend_version)],
             ]
-            self.assertFalse(compiler_backend_filter(comb2))
+            self.assertFalse(compiler_backend_filter_typed(comb2))
 
             comb3 = [
                 (GCC, "9"),
@@ -278,7 +280,7 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
                     (ALPAKA_ACC_GPU_CUDA_ENABLE, backend_version),
                 ],
             ]
-            self.assertFalse(compiler_backend_filter(comb3))
+            self.assertFalse(compiler_backend_filter_typed(comb3))
 
             comb4 = [
                 (CLANG, "9"),
@@ -289,7 +291,7 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
                     (ALPAKA_ACC_GPU_CUDA_ENABLE, backend_version),
                 ],
             ]
-            self.assertFalse(compiler_backend_filter(comb4))
+            self.assertFalse(compiler_backend_filter_typed(comb4))
 
 
 class TestNvccGccCompatibility(unittest.TestCase):
@@ -329,7 +331,9 @@ class TestNvccGccCompatibility(unittest.TestCase):
 
         for nvcc_version, gcc_version, expected_value in expected_results:
             self.assertEqual(
-                compiler_version_filter([(NVCC, nvcc_version), (GCC, gcc_version)]),
+                compiler_version_filter_typed(
+                    [(NVCC, nvcc_version), (GCC, gcc_version)]
+                ),
                 expected_value,
                 f"nvcc {nvcc_version} + gcc {gcc_version} -> {expected_value}",
             )
@@ -371,7 +375,9 @@ class TestNvccGccCompatibility(unittest.TestCase):
 
         for nvcc_version, gcc_version, expected_value in expected_results:
             self.assertEqual(
-                compiler_version_filter([(NVCC, nvcc_version), (GCC, gcc_version)]),
+                compiler_version_filter_typed(
+                    [(NVCC, nvcc_version), (GCC, gcc_version)]
+                ),
                 expected_value,
                 f"nvcc {nvcc_version} + gcc {gcc_version} -> {expected_value}",
             )
@@ -388,7 +394,9 @@ class TestNvccGccCompatibility(unittest.TestCase):
 
         for nvcc_version, gcc_version, expected_value in expected_results:
             self.assertEqual(
-                compiler_version_filter([(NVCC, nvcc_version), (GCC, gcc_version)]),
+                compiler_version_filter_typed(
+                    [(NVCC, nvcc_version), (GCC, gcc_version)]
+                ),
                 expected_value,
                 f"nvcc {nvcc_version} + gcc {gcc_version} -> {expected_value}",
             )
@@ -445,7 +453,9 @@ class TestNvccClangCompatibility(unittest.TestCase):
 
         for nvcc_version, clang_version, expected_value in expected_results:
             self.assertEqual(
-                compiler_version_filter([(NVCC, nvcc_version), (CLANG, clang_version)]),
+                compiler_version_filter_typed(
+                    [(NVCC, nvcc_version), (CLANG, clang_version)]
+                ),
                 expected_value,
                 f"nvcc {nvcc_version} + clang {clang_version} -> {expected_value}",
             )
@@ -462,7 +472,9 @@ class TestNvccClangCompatibility(unittest.TestCase):
 
         for nvcc_version, clang_version, expected_value in expected_results:
             self.assertEqual(
-                compiler_version_filter([(NVCC, nvcc_version), (CLANG, clang_version)]),
+                compiler_version_filter_typed(
+                    [(NVCC, nvcc_version), (CLANG, clang_version)]
+                ),
                 expected_value,
                 f"nvcc {nvcc_version} + clang {clang_version} -> {expected_value}",
             )
@@ -505,12 +517,12 @@ class TestNvccCxxStandard(unittest.TestCase):
                 comb = [(NVCC, nvcc_version), (CXX_STANDARD, str(cxx_version))]
                 if cxx_version <= max_cxx:
                     self.assertTrue(
-                        software_dependency_filter(comb),
+                        software_dependency_filter_typed(comb),
                         f"NVCC {nvcc_version} + CXX {cxx_version}",
                     )
                 else:
                     self.assertFalse(
-                        software_dependency_filter(comb),
+                        software_dependency_filter_typed(comb),
                         f"NVCC {nvcc_version} + CXX {cxx_version}",
                     )
 
@@ -538,10 +550,10 @@ class TestClangCUDA(unittest.TestCase):
     def test_host_compiler_name(self):
         comb = [(CLANG_CUDA, "99")]
 
-        self.assertTrue(general_compiler_filter(comb))
-        self.assertTrue(compiler_version_filter(comb))
-        self.assertTrue(compiler_backend_filter(comb))
-        self.assertTrue(software_dependency_filter(comb))
+        self.assertTrue(general_compiler_filter_typed(comb))
+        self.assertTrue(compiler_version_filter_typed(comb))
+        self.assertTrue(compiler_backend_filter_typed(comb))
+        self.assertTrue(software_dependency_filter_typed(comb))
         self.assertTrue(full_filter_chain(comb))
 
     # CLANG_CUDA as host compiler can be only used with CLANG_CUDA as device
@@ -549,10 +561,10 @@ class TestClangCUDA(unittest.TestCase):
     def test_host_device_compiler_name(self):
         valid_comb = [(CLANG_CUDA, "99"), (CLANG_CUDA, "99")]
 
-        self.assertTrue(general_compiler_filter(valid_comb))
-        self.assertTrue(compiler_version_filter(valid_comb))
-        self.assertTrue(compiler_backend_filter(valid_comb))
-        self.assertTrue(software_dependency_filter(valid_comb))
+        self.assertTrue(general_compiler_filter_typed(valid_comb))
+        self.assertTrue(compiler_version_filter_typed(valid_comb))
+        self.assertTrue(compiler_backend_filter_typed(valid_comb))
+        self.assertTrue(software_dependency_filter_typed(valid_comb))
         self.assertTrue(full_filter_chain(valid_comb))
 
         invalid_combs = [
@@ -568,19 +580,19 @@ class TestClangCUDA(unittest.TestCase):
 
         for comb in invalid_combs:
             self.assertFalse(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertFalse(
@@ -599,22 +611,22 @@ class TestClangCUDA(unittest.TestCase):
 
         for comb in valid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
@@ -634,22 +646,22 @@ class TestClangCUDA(unittest.TestCase):
 
         for comb in invalid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertFalse(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
@@ -688,25 +700,25 @@ class TestClangCUDA(unittest.TestCase):
 
         for comb in valid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
@@ -747,25 +759,25 @@ class TestClangCUDA(unittest.TestCase):
 
         for comb in invalid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertFalse(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
@@ -823,14 +835,14 @@ class TestClangCUDA(unittest.TestCase):
 
                 if cuda_version > supported_versions[clang_version]:
                     self.assertFalse(
-                        compiler_backend_filter(comb),
+                        compiler_backend_filter_typed(comb),
                         f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                         f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                         f"BACKENDS: {comb[2]}",
                     )
                 else:
                     self.assertTrue(
-                        compiler_backend_filter(comb),
+                        compiler_backend_filter_typed(comb),
                         f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                         f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                         f"BACKENDS: {comb[2]}",
@@ -839,7 +851,7 @@ class TestClangCUDA(unittest.TestCase):
         # test if combination of non released clang version and released CUDA
         # SDK is allowed
         self.assertTrue(
-            compiler_backend_filter(
+            compiler_backend_filter_typed(
                 [
                     (CLANG_CUDA, "30"),
                     (CLANG_CUDA, "30"),
@@ -854,7 +866,7 @@ class TestClangCUDA(unittest.TestCase):
         # test if combination of non released clang version and non released
         # CUDA SDK is allowed
         self.assertTrue(
-            compiler_backend_filter(
+            compiler_backend_filter_typed(
                 [
                     (CLANG_CUDA, "30"),
                     (CLANG_CUDA, "30"),
@@ -869,7 +881,7 @@ class TestClangCUDA(unittest.TestCase):
         # test if combination of released clang version and non released
         # CUDA SDK is not allowed
         self.assertFalse(
-            compiler_backend_filter(
+            compiler_backend_filter_typed(
                 [
                     (CLANG_CUDA, "15"),
                     (CLANG_CUDA, "15"),
@@ -892,17 +904,17 @@ class TestClangCUDA(unittest.TestCase):
                     (CXX_STANDARD, str(cxx_version)),
                 ]
                 self.assertTrue(
-                    general_compiler_filter(comb),
+                    general_compiler_filter_typed(comb),
                     f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                     f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                     f"C++: {comb[3]}",
                 )
 
-                # does not test compiler_version_filter(), because of the filter
+                # does not test compiler_version_filter_typed(), because of the filter
                 # rule, that Clang 13 and older is not allowed as CUDA compiler
 
                 self.assertTrue(
-                    compiler_backend_filter(comb),
+                    compiler_backend_filter_typed(comb),
                     f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                     f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                     f"C++: {comb[3]}",
@@ -910,7 +922,7 @@ class TestClangCUDA(unittest.TestCase):
 
                 if clang_version <= 9 and cxx_version > 17:
                     self.assertFalse(
-                        software_dependency_filter(comb),
+                        software_dependency_filter_typed(comb),
                         f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                         f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                         f"C++: {comb[3]}",
@@ -923,7 +935,7 @@ class TestClangCUDA(unittest.TestCase):
                     )
                 else:
                     self.assertTrue(
-                        software_dependency_filter(comb),
+                        software_dependency_filter_typed(comb),
                         f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                         f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                         f"C++: {comb[3]}",
@@ -941,14 +953,14 @@ class TestClangCUDA(unittest.TestCase):
             ]
 
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"Ubuntu: {comb[4]}",
             )
 
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"Ubuntu: {comb[4]}",
@@ -956,7 +968,7 @@ class TestClangCUDA(unittest.TestCase):
 
             if clang_version == 11 or clang_version == 12:
                 self.assertFalse(
-                    software_dependency_filter(comb),
+                    software_dependency_filter_typed(comb),
                     f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                     f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                     f"Ubuntu: {comb[4]}",
@@ -969,7 +981,7 @@ class TestClangCUDA(unittest.TestCase):
                 )
             else:
                 self.assertTrue(
-                    software_dependency_filter(comb),
+                    software_dependency_filter_typed(comb),
                     f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                     f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                     f"Ubuntu: {comb[4]}",
@@ -998,25 +1010,25 @@ class TestClangCUDA(unittest.TestCase):
 
         for comb in valid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"CMAKE: {comb[5][1]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"CMAKE: {comb[5][1]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"CMAKE: {comb[5][1]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"CMAKE: {comb[5][1]}",
@@ -1057,25 +1069,25 @@ class TestClangCUDA(unittest.TestCase):
 
         for comb in invalid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"CMAKE: {comb[5][1]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"CMAKE: {comb[5][1]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"CMAKE: {comb[5][1]}",
             )
             self.assertFalse(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"CMAKE: {comb[5][1]}",

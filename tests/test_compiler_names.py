@@ -1,7 +1,7 @@
 import unittest
 
 from alpaka_job_coverage.globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from alpaka_job_coverage.filter_compiler_name import general_compiler_filter
+from alpaka_job_coverage.filter_compiler_name import general_compiler_filter_typed
 
 
 # Test all compiler names except nvcc and clang-cuda. This is tested in
@@ -27,7 +27,7 @@ class TestHostDeviceCompiler(unittest.TestCase):
         ]
 
         for comb in valid_combs:
-            self.assertTrue(general_compiler_filter(comb))
+            self.assertTrue(general_compiler_filter_typed(comb))
 
         invalid_combs = [
             [(GCC, "0"), (CLANG, "0")],
@@ -37,4 +37,4 @@ class TestHostDeviceCompiler(unittest.TestCase):
         ]
 
         for comb in invalid_combs:
-            self.assertFalse(general_compiler_filter(comb))
+            self.assertFalse(general_compiler_filter_typed(comb))

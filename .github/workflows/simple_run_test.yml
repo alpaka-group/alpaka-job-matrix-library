@@ -1,5 +1,5 @@
 name: test-different-python-versions
-on: [push]
+on: [push, pull_request]
 jobs:
   run-job-generator:
     runs-on: ubuntu-latest
