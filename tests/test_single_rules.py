@@ -18,7 +18,7 @@ def full_filter_chain(row) -> bool:
     )
 
 
-class TestNVCC113GCC103UBUNTU2004(unittest.TestCase):
+class TestNVCC11GCC103UBUNTU2004(unittest.TestCase):
     def setUp(self):
         global param_map
         # set param_map, that filters expect the following parameters in the
@@ -35,35 +35,47 @@ class TestNVCC113GCC103UBUNTU2004(unittest.TestCase):
 
     # test if nvcc 11.3 + gcc 10 + Ubuntu 20.04 is disabled
     def test_forbid_combination(self):
-        comb = [(GCC, "10"), (NVCC, "11.3"), (UBUNTU, "20.04")]
+        for nvcc_version in ["11.0", "11.1", "11.2", "11.3"]:
+            comb = [(GCC, "10"), (NVCC, nvcc_version), (UBUNTU, "20.04")]
 
-        self.assertTrue(
-            general_compiler_filter(comb),
-            f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
-            f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
-            f"UBUNTU: {comb[2][1]}",
-        )
-        self.assertTrue(
-            compiler_version_filter(comb),
-            f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
-            f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
-            f"UBUNTU: {comb[2][1]}",
-        )
-        self.assertTrue(
-            compiler_backend_filter(comb),
-            f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
-            f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
-            f"UBUNTU: {comb[2][1]}",
-        )
-        self.assertFalse(
-            software_dependency_filter(comb),
-            f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
-            f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
-            f"UBUNTU: {comb[2][1]}",
-        )
-        self.assertFalse(
-            full_filter_chain(comb),
-            f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
-            f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
-            f"UBUNTU: {comb[2][1]}",
-        )
+            self.assertTrue(
+                general_compiler_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"UBUNTU: {comb[2][1]}",
+            )
+
+            # nvcc 11.0 does not support GCC 10
+            if nvcc_version != "11.0":
+                self.assertTrue(
+                    compiler_version_filter(comb),
+                    f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                    f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                    f"UBUNTU: {comb[2][1]}",
+                )
+            else:
+                self.assertFalse(
+                    compiler_version_filter(comb),
+                    f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                    f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                    f"UBUNTU: {comb[2][1]}",
+                )
+
+            self.assertTrue(
+                compiler_backend_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"UBUNTU: {comb[2][1]}",
+            )
+            self.assertFalse(
+                software_dependency_filter(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"UBUNTU: {comb[2][1]}",
+            )
+            self.assertFalse(
+                full_filter_chain(comb),
+                f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
+                f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
+                f"UBUNTU: {comb[2][1]}",
+            )
