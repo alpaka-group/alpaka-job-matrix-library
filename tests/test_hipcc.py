@@ -1,18 +1,20 @@
 import unittest
 
-from alpaka_job_coverage.filter_compiler_name import general_compiler_filter
-from alpaka_job_coverage.filter_compiler_version import compiler_version_filter
-from alpaka_job_coverage.filter_backend_version import compiler_backend_filter
-from alpaka_job_coverage.filter_software_dependency import software_dependency_filter
+from alpaka_job_coverage.filter_compiler_name import general_compiler_filter_typed
+from alpaka_job_coverage.filter_compiler_version import compiler_version_filter_typed
+from alpaka_job_coverage.filter_backend_version import compiler_backend_filter_typed
+from alpaka_job_coverage.filter_software_dependency import (
+    software_dependency_filter_typed,
+)
 from alpaka_job_coverage.globals import *
 
 
 def full_filter_chain(row) -> bool:
     return (
-        general_compiler_filter(row)
-        and compiler_version_filter(row)
-        and compiler_backend_filter(row)
-        and software_dependency_filter(row)
+        general_compiler_filter_typed(row)
+        and compiler_version_filter_typed(row)
+        and compiler_backend_filter_typed(row)
+        and software_dependency_filter_typed(row)
     )
 
 
@@ -42,19 +44,19 @@ class TestHipccHostDeviceCompilerBackend(unittest.TestCase):
 
         for comb in valid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}",
             )
             self.assertTrue(
@@ -71,19 +73,19 @@ class TestHipccHostDeviceCompilerBackend(unittest.TestCase):
 
         for comb in valid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertTrue(
@@ -105,19 +107,19 @@ class TestHipccHostDeviceCompilerBackend(unittest.TestCase):
 
         for comb in invalid_combs:
             self.assertFalse(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]}, DEVICE_COMPILER: {comb[1][0]}",
             )
             self.assertFalse(
@@ -136,22 +138,22 @@ class TestHipccHostDeviceCompilerBackend(unittest.TestCase):
 
         for comb in valid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
@@ -169,22 +171,22 @@ class TestHipccHostDeviceCompilerBackend(unittest.TestCase):
 
         for comb in invalid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertFalse(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}",
             )
@@ -225,25 +227,25 @@ class TestHipccHostDeviceCompilerBackend(unittest.TestCase):
 
         for comb in valid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertTrue(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
@@ -283,25 +285,25 @@ class TestHipccHostDeviceCompilerBackend(unittest.TestCase):
 
         for comb in invalid_combs:
             self.assertTrue(
-                general_compiler_filter(comb),
+                general_compiler_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertTrue(
-                compiler_version_filter(comb),
+                compiler_version_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertFalse(
-                compiler_backend_filter(comb),
+                compiler_backend_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",
             )
             self.assertTrue(
-                software_dependency_filter(comb),
+                software_dependency_filter_typed(comb),
                 f"HOST_COMPILER: {comb[0][0]} {comb[0][1]}, "
                 f"DEVICE_COMPILER: {comb[1][0]} {comb[1][1]}, "
                 f"BACKENDS: {comb[2]}",

@@ -5,6 +5,27 @@ from alpaka_job_coverage.globals import *  # pylint: disable=wildcard-import,unu
 from alpaka_job_coverage.util import row_check_name, row_check_version, is_in_row
 
 from packaging import version as pk_version
+from typing import List, Tuple, Union
+from typeguard import typechecked
+
+
+@typechecked
+def compiler_version_filter_typed(
+    row: List[Union[Tuple[str, str], List[Tuple[str, str]]]]
+) -> bool:
+    """Type checked version of compiler_version_filter(). Should be only used for
+    testing or tooling. The type check adds a big overhead, which slows down
+    pair-wise generator by the factor 30.
+
+    Args:
+        row (List[Union[Tuple[str, str], List[Tuple[str, str]]]]): Combination
+        to verify. The row can contain up to all combination fields and at least
+         two items.
+
+    Returns:
+        bool: True, if combination is valid, otherwise False.
+    """
+    return compiler_version_filter(row)
 
 
 def compiler_version_filter(row: List) -> bool:

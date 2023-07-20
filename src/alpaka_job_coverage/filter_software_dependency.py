@@ -10,6 +10,27 @@ from alpaka_job_coverage.util import (
 )
 
 from packaging import version as pk_version
+from typing import List, Tuple, Union
+from typeguard import typechecked
+
+
+@typechecked
+def software_dependency_filter_typed(
+    row: List[Union[Tuple[str, str], List[Tuple[str, str]]]]
+) -> bool:
+    """Type checked version of software_dependency_filter(). Should be only used for
+    testing or tooling. The type check adds a big overhead, which slows down
+    pair-wise generator by the factor 30.
+
+    Args:
+        row (List[Union[Tuple[str, str], List[Tuple[str, str]]]]): Combination
+        to verify. The row can contain up to all combination fields and at least
+         two items.
+
+    Returns:
+        bool: True, if combination is valid, otherwise False.
+    """
+    return software_dependency_filter(row)
 
 
 def software_dependency_filter(row: List) -> bool:
