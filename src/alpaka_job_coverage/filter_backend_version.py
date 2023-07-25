@@ -124,6 +124,11 @@ def compiler_backend_filter(row: List) -> bool:
             row, DEVICE_COMPILER, "<=", "15"
         ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "11.5"):
             return False
+        
+        if row_check_version(
+            row, DEVICE_COMPILER, "<=", "16"
+        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "11.5"):
+            return False
 
     ###########################
     ## hipcc device compiler
