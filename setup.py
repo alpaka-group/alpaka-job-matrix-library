@@ -30,8 +30,11 @@ setuptools.setup(
         "License :: OSI Approved :: Mozilla Public License 2.0 (MPL 2.0)",
         "Operating System :: OS Independent",
     ],
-    packages=setuptools.find_packages('src'),
-    package_dir={'': 'src'},
+    packages=setuptools.find_packages("src"),
+    package_dir={"": "src"},
+    entry_points={
+        "console_scripts": ["ajc-validate=alpaka_job_coverage.validate:main"]
+    },
     python_requires=">=3.8",
     install_requires=[
         "allpairspy == 2.5.0",
@@ -39,6 +42,5 @@ setuptools.setup(
         "pyaml",
         "types-PyYAML",
         "packaging",
-    ]
+    ],
 )
-

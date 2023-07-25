@@ -7,6 +7,16 @@ from typing import List, Tuple, Union
 from typeguard import typechecked
 
 
+def get_required_parameter() -> List[str]:
+    """Return a list of parameter names, which are required to use the filter
+    of this module.
+
+    Returns:
+        List[str]: list of parameter names
+    """
+    return [HOST_COMPILER, DEVICE_COMPILER]
+
+
 @typechecked
 def general_compiler_filter_typed(
     row: List[Union[Tuple[str, str], List[Tuple[str, str]]]]

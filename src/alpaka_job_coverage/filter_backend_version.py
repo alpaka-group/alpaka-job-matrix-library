@@ -12,6 +12,16 @@ from typing import List, Tuple, Union
 from typeguard import typechecked
 
 
+def get_required_parameter() -> List[str]:
+    """Return a list of parameter names, which are required to use the filter
+    of this module.
+
+    Returns:
+        List[str]: list of parameter names
+    """
+    return [DEVICE_COMPILER, BACKENDS]
+
+
 @typechecked
 def compiler_backend_filter_typed(
     row: List[Union[Tuple[str, str], List[Tuple[str, str]]]]
