@@ -1,10 +1,9 @@
 import unittest
 
-from typeguard import typechecked
 
-
-from alpaka_job_coverage.versions import versions, is_supported_version
+from alpaka_job_coverage.versions import is_supported_version
 from alpaka_job_coverage.globals import *
+from utils import manual_version_test
 
 
 class TestSupportedVersion(unittest.TestCase):
@@ -32,29 +31,6 @@ class TestSupportedVersion(unittest.TestCase):
             "0",
         )
 
-    @typechecked
-    def manual_version_test(
-        self, name: str, supported_versions: List[str], unsupported_versions: List[str]
-    ):
-        for version in supported_versions:
-            self.assertTrue(
-                version in versions[name],
-                f"{name} {version} needs to be a supported version for the following up tests.",
-            )
-
-        self.assertTrue(
-            "0" not in versions[name],
-            f"{name} 0 exists. If version 0 is used for special cases, "
-            "you need to modify the following up tests.",
-        )
-
-        for version in unsupported_versions:
-            self.assertTrue(
-                version not in versions[name],
-                f"We expect, that {name} {version} is not released. If it is "
-                "released, you need to changes the following up tests.",
-            )
-
     def test_version(self):
         test_versions: Dict[str, Tuple[List[str], List[str]]] = {
             GCC: (["7", "9", "10"], ["99"]),
@@ -68,7 +44,7 @@ class TestSupportedVersion(unittest.TestCase):
         # the tests only works, if we use the following supported and
         # unsupported versions
         for name, (supported_versions, unsupported_versions) in test_versions.items():
-            self.manual_version_test(name, supported_versions, unsupported_versions)
+            manual_version_test(self, name, supported_versions, unsupported_versions)
 
         for name, (supported_versions, unsupported_versions) in test_versions.items():
             for v in supported_versions:
@@ -127,3 +103,40 @@ class TestSupportedVersion(unittest.TestCase):
                         is_supported_version(ALPAKA_ACC_GPU_HIP_ENABLE, v),
                         f"{ALPAKA_ACC_GPU_HIP_ENABLE} {v} should be not supported.",
                     )
+
+    def test_on_off_backends(self):
+        # verify that
+
+        # NVCC and ALPAKA_ACC_GPU_CUDA_ENABLE shares the same versions
+        manual_version_test(self, NVCC, [], [ON_VER, "2.7", "3.0"])
+        # HIPCC and ALPAKA_ACC_GPU_HIP_ENABLE shares the same versions
+        manual_version_test(self, HIPCC, [], [ON_VER, "2.7", "3.0"])
+
+        for backend_name in BACKENDS_LIST:
+            if (
+                backend_name != ALPAKA_ACC_GPU_CUDA_ENABLE
+                and backend_name != ALPAKA_ACC_GPU_HIP_ENABLE
+            ):
+                for correct_version in [ON_VER, OFF_VER]:
+                    self.assertTrue(
+                        is_supported_version(backend_name, correct_version),
+                        f"{backend_name} {correct_version} should be allowed.",
+                    )
+            else:
+                self.assertTrue(
+                    is_supported_version(backend_name, OFF_VER),
+                    f"{backend_name} {correct_version} should be allowed.",
+                )
+                self.assertFalse(
+                    is_supported_version(backend_name, ON_VER),
+                    f"{backend_name} {correct_version} should be allowed.",
+                )
+
+            for correct_version in [
+                "2.7",
+                "3.0",
+            ]:
+                self.assertFalse(
+                    is_supported_version(backend_name, correct_version),
+                    f"{backend_name} {correct_version} is not supported.",
+                )

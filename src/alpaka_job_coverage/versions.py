@@ -61,18 +61,26 @@ def is_supported_version(name: str, version: str) -> bool:
     Returns:
         bool: True if supported otherwise False.
     """
-    if name not in list(versions.keys()) + [
-        CLANG_CUDA,
-        ALPAKA_ACC_GPU_CUDA_ENABLE,
-        ALPAKA_ACC_GPU_HIP_ENABLE,
-    ]:
+    if (
+        name
+        not in list(versions.keys())
+        + [
+            CLANG_CUDA,
+        ]
+        + BACKENDS_LIST
+    ):
         raise ValueError(f"Unknown software name: {name}")
 
     local_versions = versions.copy()
 
     local_versions[CLANG_CUDA] = versions[CLANG]
-    local_versions[ALPAKA_ACC_GPU_CUDA_ENABLE] = versions[NVCC]
-    local_versions[ALPAKA_ACC_GPU_HIP_ENABLE] = versions[HIPCC]
+    local_versions[ALPAKA_ACC_GPU_CUDA_ENABLE] = [OFF_VER] + versions[NVCC]
+    local_versions[ALPAKA_ACC_GPU_HIP_ENABLE] = [OFF_VER] + versions[HIPCC]
+
+    for backend_name in set(BACKENDS_LIST) - set(
+        (ALPAKA_ACC_GPU_CUDA_ENABLE, ALPAKA_ACC_GPU_HIP_ENABLE)
+    ):
+        local_versions[backend_name] = [ON_VER, OFF_VER]
 
     for v in local_versions[name]:
         if pk_version.parse(v) == pk_version.parse(version):
