@@ -1,11 +1,17 @@
 """Filter rules basing on host and device compiler names and versions.
 """
+import io
 
 from alpaka_job_coverage.globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
-from alpaka_job_coverage.util import row_check_name, row_check_version, is_in_row
+from alpaka_job_coverage.util import (
+    row_check_name,
+    row_check_version,
+    is_in_row,
+    reason,
+)
 
 from packaging import version as pk_version
-from typing import List, Tuple, Union
+from typing import List, Tuple, Union, Optional
 from typeguard import typechecked
 
 
@@ -21,7 +27,8 @@ def get_required_parameter() -> List[str]:
 
 @typechecked
 def compiler_version_filter_typed(
-    row: List[Union[Tuple[str, str], List[Tuple[str, str]]]]
+    row: List[Union[Tuple[str, str], List[Tuple[str, str]]]],
+    output: Optional[Union[io.StringIO, io.TextIOWrapper]] = None,
 ) -> bool:
     """Type checked version of compiler_version_filter(). Should be only used for
     testing or tooling. The type check adds a big overhead, which slows down
@@ -30,20 +37,30 @@ def compiler_version_filter_typed(
     Args:
         row (List[Union[Tuple[str, str], List[Tuple[str, str]]]]): Combination
         to verify. The row can contain up to all combination fields and at least
-         two items.
+        two items.
+        output (Optional[Union[io.StringIO, io.TextIOWrapper]]): Write
+        additional information about filter decisions to the IO object
+        (io.SringIO, sys.stdout, sys.stderr). If it is None, no information are
+        generated.
 
     Returns:
         bool: True, if combination is valid, otherwise False.
     """
-    return compiler_version_filter(row)
+    return compiler_version_filter(row, output)
 
 
-def compiler_version_filter(row: List) -> bool:
+def compiler_version_filter(
+    row: List, output: Optional[Union[io.StringIO, io.TextIOWrapper]] = None
+) -> bool:
     """Filter rules basing on host and device compiler names and versions.
 
     Args:
         row (List): Combination to verify. The row can contain
         up to all combination fields and at least two items.
+        output (Optional[Union[io.StringIO, io.TextIOWrapper]]): Write
+        additional information about filter decisions to the IO object
+        (io.SringIO, sys.stdout, sys.stderr). If it is None, no information are
+        generated.
 
     Returns:
         bool: True, if combination is valid, otherwise False.
@@ -60,6 +77,10 @@ def compiler_version_filter(row: List) -> bool:
             != row[param_map[DEVICE_COMPILER]][VERSION]
         )
     ):
+        reason(
+            output,
+            "host and device compiler needs to have the same version except for nvcc",
+        )
         return False
 
     if row_check_name(row, DEVICE_COMPILER, "==", NVCC):
@@ -90,6 +111,11 @@ def compiler_version_filter(row: List) -> bool:
                         if pk_version.parse(
                             row[param_map[HOST_COMPILER]][VERSION]
                         ) > pk_version.parse(combination[cuda_host_compiler_version]):
+                            reason(
+                                output,
+                                f"nvcc {row[param_map[DEVICE_COMPILER]][VERSION]} "
+                                f"does not support gcc {row[param_map[HOST_COMPILER]][VERSION]}",
+                            )
                             return False
                         else:
                             break
@@ -102,6 +128,10 @@ def compiler_version_filter(row: List) -> bool:
                 ) < pk_version.parse(
                     "6"
                 ):
+                    reason(
+                        output,
+                        "since CUDA 11.4, the minimum supported GCC compiler is GCC 6",
+                    )
                     return False
 
         if row_check_name(row, HOST_COMPILER, "==", CLANG):
@@ -109,6 +139,10 @@ def compiler_version_filter(row: List) -> bool:
             if row_check_version(
                 row, DEVICE_COMPILER, ">=", "11.3"
             ) and row_check_version(row, DEVICE_COMPILER, "<=", "11.5"):
+                reason(
+                    output,
+                    "clang as host compiler is disabled for nvcc 11.3 until 11.5",
+                )
                 return False
 
             combinations = [
@@ -136,6 +170,11 @@ def compiler_version_filter(row: List) -> bool:
                         if pk_version.parse(
                             row[param_map[HOST_COMPILER]][VERSION]
                         ) > pk_version.parse(combination[cuda_host_compiler_version]):
+                            reason(
+                                output,
+                                f"nvcc {row[param_map[DEVICE_COMPILER]][VERSION]} "
+                                f"does not support clang {row[param_map[HOST_COMPILER]][VERSION]}",
+                            )
                             return False
                         else:
                             break
@@ -143,6 +182,9 @@ def compiler_version_filter(row: List) -> bool:
     if row_check_name(row, DEVICE_COMPILER, "==", CLANG_CUDA):
         # disable all clang versions older than 14 as CUDA Compiler
         if row_check_version(row, DEVICE_COMPILER, "<", "14"):
+            reason(
+                output, "all clang versions older than 14 are disabled as CUDA Compiler"
+            )
             return False
 
     return True

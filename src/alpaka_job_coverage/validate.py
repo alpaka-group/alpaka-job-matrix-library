@@ -4,12 +4,14 @@ import argparse
 from packaging import version as pk_version
 from typing import Dict, Tuple, Union
 from typeguard import typechecked
+from io import StringIO
 
 from alpaka_job_coverage.globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
 import alpaka_job_coverage.filter_compiler_name as ajc_compiler_name
 import alpaka_job_coverage.filter_compiler_version as ajc_compiler_version
 import alpaka_job_coverage.filter_backend_version as ajc_backend_version
 import alpaka_job_coverage.filter_software_dependency as ajc_software_dependency
+from alpaka_job_coverage.versions import is_supported_version
 
 
 @typechecked
@@ -138,6 +140,38 @@ class VersionAction(argparse.Action):
 
 
 @typechecked
+def validate_version_support(
+    parameters: Dict[str, Union[Tuple[str, str], List[Tuple[str, str]]]],
+):
+    """Print a warning, if a software version is not official supported by the
+    library. The function does not exit the application, because the versions
+    can still be tested with the filter functions.
+
+    Args:
+        parameters (Dict[str, Union[Tuple[str, str], List[Tuple[str, str]]]]):
+        parameter set of the software versions to test
+    """
+    for param_name, param_value in parameters.items():
+        if param_name == BACKENDS:
+            for backend_name, backend_version in param_value:
+                if not is_supported_version(backend_name, backend_version):
+                    print(
+                        cs(
+                            f"WARNING: {backend_name} {backend_version} is not official supported.",
+                            "Yellow",
+                        )
+                    )
+        else:
+            if not is_supported_version(param_value[0], param_value[1]):
+                print(
+                    cs(
+                        f"WARNING: {param_value[0]} {param_value[1]} is not official supported.",
+                        "Yellow",
+                    )
+                )
+
+
+@typechecked
 def check_single_filter(
     filter: callable,
     req_params: List[str],
@@ -189,13 +223,19 @@ def check_single_filter(
             param_map[param_name] = i
             row.append(param)
 
-        if filter(row):
+        # the msg object allows to get information from filter function, why
+        # parameter combination does not pass the filter
+        msg = StringIO()
+
+        if filter(row, msg):
             print(cs(f"{filter_name}() returns True", "Green"))
             # reset param_map
             param_map = {}
             return True
         else:
             print(cs(f"{filter_name}() returns False", "Red"))
+            if msg.getvalue() != "":
+                print("  " + msg.getvalue())
             # reset param_map
             param_map = {}
             return False
@@ -340,6 +380,7 @@ def main():
     if args.print_parameters:
         print(parameters)
 
+    validate_version_support(parameters)
     exit(int(not check_filters(parameters)))
 
 

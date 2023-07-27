@@ -30,8 +30,8 @@ Example for a row:
     ('ubuntu', '20.04')]
 """
 
-import operator, re
-from typing import Any, List, Dict, Tuple
+import operator, re, io
+from typing import Any, List, Dict, Tuple, Optional, Union
 from typeguard import typechecked
 from packaging import version as pk_version
 
@@ -346,3 +346,20 @@ def is_supported_sw_version(name: str, version: str, verbose=True) -> bool:
             return False
 
     return True
+
+
+def reason(output: Optional[Union[io.StringIO, io.TextIOWrapper]], msg: str):
+    """Write the message to output, if it is not None. The function is used
+    in filter function to print additional information of filter decisions.
+
+    Args:
+        output (Optional[Union[io.StringIO, io.TextIOWrapper]]): IO object.
+        Can be io.StringIO, sys.stdout sys.stderr
+        msg (str): the message
+    """
+    if output:
+        print(
+            msg,
+            file=output,
+            end="",
+        )
