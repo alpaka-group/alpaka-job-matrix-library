@@ -823,6 +823,7 @@ class TestClangCUDA(unittest.TestCase):
             13: 11.2,
             14: 11.5,
             15: 11.5,
+            16: 11.5,
         }
 
         for clang_version in supported_versions.keys():
