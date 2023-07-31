@@ -152,47 +152,27 @@ def compiler_backend_filter(
             )
             return False
 
-        # TODO: simplify me
-        if row_check_version(
-            row, DEVICE_COMPILER, "<=", "7"
-        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "9.2"):
-            reason(output, "clang 7 supports only up to CUDA 9.2")
-            return False
+        # check if clang-cuda supports the CUDA SDK version
+        clangcuda_cudasdk_versions = [
+            ("7", "9.2"),
+            ("8", "10.0"),
+            ("10", "10.1"),
+            ("12", "11.0"),
+            ("13", "11.2"),
+            ("16", "11.5"),
+        ]
 
-        if row_check_version(
-            row, DEVICE_COMPILER, "<=", "8"
-        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "10.0"):
-            reason(output, "clang 8 supports only up to CUDA 10.0")
-            return False
-
-        if row_check_version(
-            row, DEVICE_COMPILER, "<=", "10"
-        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "10.1"):
-            reason(output, "clang 10 supports only up to CUDA 10.1")
-            return False
-
-        if row_check_version(
-            row, DEVICE_COMPILER, "<=", "12"
-        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "11.0"):
-            reason(output, "clang 12 supports only up to CUDA 11.0")
-            return False
-
-        if row_check_version(
-            row, DEVICE_COMPILER, "<=", "13"
-        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "11.2"):
-            reason(output, "clang 13 supports only up to CUDA 11.2")
-            return False
-
-        if row_check_version(
-            row, DEVICE_COMPILER, "<=", "15"
-        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "11.5"):
-            reason(output, "clang 15 supports only up to CUDA 11.5")
-            return False
-        
-        if row_check_version(
-            row, DEVICE_COMPILER, "<=", "16"
-        ) and row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", "11.5"):
-            return False
+        for clang_cuda_version, cuda_sdk_version in clangcuda_cudasdk_versions:
+            if row_check_version(
+                row, DEVICE_COMPILER, "<=", clang_cuda_version
+            ) and row_check_backend_version(
+                row, ALPAKA_ACC_GPU_CUDA_ENABLE, ">", cuda_sdk_version
+            ):
+                reason(
+                    output,
+                    f"clang {clang_cuda_version} supports only up to CUDA {cuda_sdk_version}",
+                )
+                return False
 
     ###########################
     ## hipcc device compiler
