@@ -18,11 +18,9 @@ from typeguard import typechecked
 
 
 def get_required_parameter() -> List[str]:
-    """Return a list of parameter names, which are required to use the filter
-    of this module.
-
+    """Returns a list of parameters which are required for using the filter defined by this module.
     Returns:
-        List[str]: list of parameter names
+        List[str]: list of parameters
     """
     return [HOST_COMPILER, DEVICE_COMPILER, BACKENDS, UBUNTU, CMAKE, CXX_STANDARD]
 
@@ -42,7 +40,7 @@ def software_dependency_filter_typed(
         two items.
         output (Optional[Union[io.StringIO, io.TextIOWrapper]]): Write
         additional information about filter decisions to the IO object
-        (io.SringIO, sys.stdout, sys.stderr). If it is None, no information are
+        (io.SringIO, sys.stdout, sys.stderr). If it is None no information is
         generated.
 
     Returns:
@@ -61,7 +59,7 @@ def software_dependency_filter(
         up to all combination fields and at least two items.
         output (Optional[Union[io.StringIO, io.TextIOWrapper]]): Write
         additional information about filter decisions to the IO object
-        (io.SringIO, sys.stdout, sys.stderr). If it is None, no information are
+        (io.SringIO, sys.stdout, sys.stderr). If it is None, no information is
         generated.
 
     Returns:
@@ -74,7 +72,7 @@ def software_dependency_filter(
             row_check_name(row, HOST_COMPILER, "==", GCC)
             and int(row[param_map[HOST_COMPILER]][VERSION]) <= 6
         ):
-            reason(output, "gcc 6 and below is not available on Ubuntu 20.04")
+            reason(output, "gcc versions <= 6 are not available on Ubuntu 20.04")
             return False
 
     # GCC 9 and older does not support -std=c++20
@@ -83,7 +81,7 @@ def software_dependency_filter(
         and row_check_name(row, HOST_COMPILER, "==", GCC)
         and row_check_version(row, HOST_COMPILER, "<=", "9")
     ):
-        reason(output, "gcc 9 and older does not support c++20")
+        reason(output, "gcc versions <= 9 do not support C++20")
         return False
 
     if row_check_name(row, DEVICE_COMPILER, "==", NVCC) and is_in_row(
@@ -106,8 +104,8 @@ def software_dependency_filter(
             ):
                 reason(
                     output,
-                    f"nvcc {row[param_map[DEVICE_COMPILER]][VERSION]} "
-                    f"does not support c++ {cxx_version}",
+                    f"nvcc-{row[param_map[DEVICE_COMPILER]][VERSION]} "
+                    f"does not support C++{cxx_version}",
                 )
                 return False
 
@@ -135,7 +133,7 @@ def software_dependency_filter(
             )
         )
     ):
-        reason(output, "clang 11 and 12 are not available in the Ubuntu 18.04 ppa")
+        reason(output, "clang 11 and 12 are not available in the Ubuntu 18.04 PPA")
         return False
 
     # Clang 9 and older does not support -std=c++20
@@ -144,7 +142,7 @@ def software_dependency_filter(
             if row_check_name(
                 row, HOST_COMPILER, "==", compiler_name
             ) and row_check_version(row, HOST_COMPILER, "<=", "9"):
-                reason(output, "clang 9 and older does not support c++20")
+                reason(output, "clang versions <= 9 do not support C++20")
                 return False
 
     # ubuntu 18.04 containers are not available for CUDA 11.0 and later
@@ -175,7 +173,7 @@ def software_dependency_filter(
         and row_check_name(row, DEVICE_COMPILER, "==", HIPCC)
         and row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER)
     ):
-        reason(output, "all rocm images are Ubuntu 20.04 based")
+        reason(output, "all ROCm images are based on Ubuntu 20.04")
         return False
 
     # a bug in CMAKE 3.18 avoids the correct usage of the variable CMAKE_CUDA_ARCHITECTURE if the
@@ -185,7 +183,7 @@ def software_dependency_filter(
     ):
         reason(
             output,
-            "CMake 3.18 and older does not support Clang as CUDA compiler correctly.",
+            "CMake versions <= 3.18 do not support clang-cuda correctly.",
         )
         return False
 
@@ -206,8 +204,8 @@ def software_dependency_filter(
     ):
         reason(
             output,
-            "gcc 10.3 (provided by Ubuntu 20.04) does not work "
-            "together with CUDA 11.0-11.3",
+            "gcc-10.3 (provided by Ubuntu 20.04) does not work "
+            "together with CUDA 11.0 to 11.3",
         )
         return False
 

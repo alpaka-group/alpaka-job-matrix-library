@@ -15,11 +15,10 @@ from typeguard import typechecked
 
 
 def get_required_parameter() -> List[str]:
-    """Return a list of parameter names, which are required to use the filter
-    of this module.
+    """Returns a list of parameters which are required for using the filter defined by this module.
 
     Returns:
-        List[str]: list of parameter names
+        List[str]: list of parameters
     """
     return [DEVICE_COMPILER, BACKENDS]
 
@@ -39,7 +38,7 @@ def compiler_backend_filter_typed(
         two items.
         output (Optional[Union[io.StringIO, io.TextIOWrapper]]): Write
         additional information about filter decisions to the IO object
-        (io.SringIO, sys.stdout, sys.stderr). If it is None, no information are
+        (io.SringIO, sys.stdout, sys.stderr). If it is None no information is
         generated.
 
     Returns:
@@ -58,7 +57,7 @@ def compiler_backend_filter(
         up to all combination fields and at least two items.
         output (Optional[Union[io.StringIO, io.TextIOWrapper]]): Write
         additional information about filter decisions to the IO object
-        (io.SringIO, sys.stdout, sys.stderr). If it is None, no information are
+        (io.SringIO, sys.stdout, sys.stderr). If it is None no information is
         generated.
 
     Returns:
@@ -72,14 +71,14 @@ def compiler_backend_filter(
         if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF_VER):
             reason(
                 output,
-                "gcc as device compiler cannot compile with enabled alpaka_ACC_GPU_CUDA_ENABLE backend",
+                "gcc as device compiler cannot compile with enabled alpaka_ACC_GPU_CUDA_ENABLE back-end",
             )
             return False
 
         if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER):
             reason(
                 output,
-                "gcc as device compiler cannot compile with enabled alpaka_ACC_GPU_HIP_ENABLE backend",
+                "gcc as device compiler cannot compile with enabled alpaka_ACC_GPU_HIP_ENABLE back-end",
             )
             return False
 
@@ -91,7 +90,7 @@ def compiler_backend_filter(
         if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF_VER):
             reason(
                 output,
-                "clang as device compiler cannot compile with enabled alpaka_ACC_GPU_CUDA_ENABLE backend",
+                "clang as device compiler cannot compile with enabled alpaka_ACC_GPU_CUDA_ENABLE back-end (use clang-cuda instead)",
             )
             return False
 
@@ -99,7 +98,8 @@ def compiler_backend_filter(
         if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER):
             reason(
                 output,
-                "clang as device compiler cannot compile with enabled alpaka_ACC_GPU_HIP_ENABLE backend",
+                "clang as device compiler cannot compile with enabled "
+                "alpaka_ACC_GPU_HIP_ENABLE back-end (use hipcc instead)",
             )
             return False
 
@@ -116,7 +116,8 @@ def compiler_backend_filter(
             row[param_map[DEVICE_COMPILER]][VERSION],
         ):
             reason(
-                output, "nvcc compiler and CUDA backend needs to have the same version"
+                output,
+                "the nvcc compiler and the CUDA back-end must have the same version",
             )
             return False
 
@@ -124,8 +125,8 @@ def compiler_backend_filter(
         if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER):
             reason(
                 output,
-                "if nvcc is the device compiler and the CUDA backend is enabled, "
-                "it is not allowed to enable the HIP backend",
+                "If nvcc is the device compiler and the CUDA back-end is enabled "
+                "it is not allowed to enable the HIP back-end",
             )
             return False
 
@@ -138,8 +139,8 @@ def compiler_backend_filter(
         if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "==", OFF_VER):
             reason(
                 output,
-                "when CLANG_CUDA is set das device compiler, "
-                "the CUDA backend needs to be enabled",
+                "when CLANG_CUDA is set as device compiler "
+                "the CUDA back-end must be enabled",
             )
             return False
 
@@ -147,8 +148,8 @@ def compiler_backend_filter(
         if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER):
             reason(
                 output,
-                "if clang-cuda is the device compiler and the CUDA backend is enabled, "
-                "it is not allowed to enable the HIP backend",
+                "if clang-cuda is the device compiler and the CUDA back-end is enabled "
+                "it is not allowed to enable the HIP back-end",
             )
             return False
 
@@ -170,7 +171,7 @@ def compiler_backend_filter(
             ):
                 reason(
                     output,
-                    f"clang {clang_cuda_version} supports only up to CUDA {cuda_sdk_version}",
+                    f"clang-{clang_cuda_version} supports only up to CUDA {cuda_sdk_version}",
                 )
                 return False
 
@@ -187,7 +188,7 @@ def compiler_backend_filter(
             row[param_map[DEVICE_COMPILER]][VERSION],
         ):
             reason(
-                output, "hipcc and HIP backends needs to have the same version number"
+                output, "hipcc and the HIP back-end must have the same version number"
             )
             return False
 
@@ -195,8 +196,8 @@ def compiler_backend_filter(
         if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF_VER):
             reason(
                 output,
-                "if hipcc is the device compiler and the HIP backend is enabled, "
-                "it is not allowed to enable the CUDA backend",
+                "if hipcc is the device compiler and the HIP back-end is enabled, "
+                "it is not allowed to enable the CUDA back-end",
             )
             return False
 

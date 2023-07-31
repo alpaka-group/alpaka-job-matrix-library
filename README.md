@@ -42,7 +42,7 @@ If you want to use a project-specific parameter, you can simply add it to the pa
 
 # ajc-validate
 
-`ajc-validate` is a tool which will be installed, if you install `alpaka-job-coverage` library. The command line allows to check if a combination of parameters passes the different filter and if not it will display the reason.
+`ajc-validate` is a tool which is installed together with the `alpaka-job-coverage` library. The tool allows to check whether a combination of parameters passes the different filters and displays the reason if not.
 
 ![ajc-validate example](docs/images/ajc-validator-example.png)
 

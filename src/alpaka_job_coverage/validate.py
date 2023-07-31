@@ -16,12 +16,12 @@ from alpaka_job_coverage.versions import is_supported_version
 
 @typechecked
 def cs(text: str, color: str):
-    """Print the text in a different color on the command line. The text after
-       the function has the default color of the command line.
+    """Prints colored text to the command line. The text printed after
+       the function call has the default color of the command line.
 
     :param text: text to be colored
     :type text: str
-    :param color: Name of the color. If wrong color or empty, use default color
+    :param color: Name of the color. If color is unknown or empty use default color
                   of the command line.
     :type color: str
     :returns:
@@ -46,7 +46,7 @@ def cs(text: str, color: str):
 
 @typechecked
 def exit_error(text: str):
-    """Print error message and exit application with error code 1.
+    """Prints error message and exits application with error code 1.
 
     Args:
         text (str): Error message.
@@ -57,7 +57,7 @@ def exit_error(text: str):
 
 @typechecked
 def validate_args_compiler(arguments: Dict[str, str]) -> Dict[str, Tuple[str, str]]:
-    """Check if compiler name exist and version number is parsable.
+    """Checks if the compiler name exists and the version number is parsable.
 
     Args:
         arguments (Dict[str, str]): Key needs to be HOST_COMPILER or
@@ -78,7 +78,7 @@ def validate_args_compiler(arguments: Dict[str, str]) -> Dict[str, Tuple[str, st
         version = splitted_name_version[1]
 
         if name not in known_compiler:
-            exit_error(f"Unknown compiler: {name}\nKnown Compiler: {known_compiler}")
+            exit_error(f"Unknown compiler: {name}\nKnown compilers: {known_compiler}")
 
         # use parse() function to validate that the version has a valid shape
         try:
@@ -93,13 +93,13 @@ def validate_args_compiler(arguments: Dict[str, str]) -> Dict[str, Tuple[str, st
 
 @typechecked
 def validate_args_backend(arguments: List[str]) -> Dict[str, List[Tuple[str, str]]]:
-    """Check if backend names exist and version numbers are parsable.
+    """Checks if back-end names exist and the version numbers are parsable.
 
     Args:
-        arguments (List[str]): List of Backend names with versions.
+        arguments (List[str]): List of back-end names with versions.
 
     Returns:
-        Dict[str, List[Tuple[str, str]]]: List of parsed backend names with
+        Dict[str, List[Tuple[str, str]]]: List of parsed back-end names with
         versions.
     """
     validated_args = {BACKENDS: []}
@@ -114,7 +114,7 @@ def validate_args_backend(arguments: List[str]) -> Dict[str, List[Tuple[str, str
             version = splitted_name_version[1]
 
             if name not in BACKENDS_LIST:
-                exit_error(f"Unknown backend: {name}\nKnown Compiler: {BACKENDS_LIST}")
+                exit_error(f"Unknown back-end: {name}\nKnown back-ends: {BACKENDS_LIST}")
 
             # use parse() function to validate that the version has a valid shape
             try:
@@ -143,8 +143,8 @@ class VersionAction(argparse.Action):
 def validate_version_support(
     parameters: Dict[str, Union[Tuple[str, str], List[Tuple[str, str]]]],
 ):
-    """Print a warning, if a software version is not official supported by the
-    library. The function does not exit the application, because the versions
+    """Prints a warning if a software version is not officially supported by the
+    library. This function does not exit the application because the versions
     can still be tested with the filter functions.
 
     Args:
@@ -157,7 +157,7 @@ def validate_version_support(
                 if not is_supported_version(backend_name, backend_version):
                     print(
                         cs(
-                            f"WARNING: {backend_name} {backend_version} is not official supported.",
+                            f"WARNING: {backend_name} {backend_version} is not officially supported.",
                             "Yellow",
                         )
                     )
@@ -165,7 +165,7 @@ def validate_version_support(
             if not is_supported_version(param_value[0], param_value[1]):
                 print(
                     cs(
-                        f"WARNING: {param_value[0]} {param_value[1]} is not official supported.",
+                        f"WARNING: {param_value[0]} {param_value[1]} is not officially supported.",
                         "Yellow",
                     )
                 )
@@ -177,8 +177,8 @@ def check_single_filter(
     req_params: List[str],
     parameters: Dict[str, Union[Tuple[str, str], List[Tuple[str, str]]]],
 ) -> bool:
-    """Apply parameter set on filter function, if it fullfil all requirements
-    and returns result. The parameter set needs to contain all parameters, which
+    """Applies a parameter set on the filter function if it fulfils all requirements
+    and returns the result. The parameter set needs to contain all parameters which
     are defined in `req_params`.
 
     Args:
@@ -188,7 +188,7 @@ def check_single_filter(
         parameter set
 
     Returns:
-        bool: returns true, if parameter set passes the filter
+        bool: returns True if parameter set passes the filter
     """
     missing_parameters = ""
 
@@ -245,7 +245,7 @@ def check_single_filter(
 def check_filters(
     parameters: Dict[str, Union[Tuple[str, str], List[Tuple[str, str]]]]
 ) -> bool:
-    """Apply parameter set on all available filters in the same order, like
+    """Applies a parameter set to all available filters in the same order, in the same way
     the ajc library is doing it.
 
     Args:
@@ -253,7 +253,7 @@ def check_filters(
         parameter set
 
     Returns:
-        bool: returns true, if all filters returns true
+        bool: returns True if all filters return True
     """
     all_true = 0
     all_true += int(
@@ -291,7 +291,7 @@ def check_filters(
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Check if combination of parameter is valid."
+        description="Check if combination of parameters is valid."
     )
 
     parser.add_argument(
@@ -311,12 +311,12 @@ def main():
     parser.add_argument(
         "--backends",
         nargs="*",
-        help="Define backends as whitespace separated list. Each element needs "
+        help="Define back-ends as whitespace separated list. Each element needs "
         "to have the shape of name@version. For example: "
         "alpaka_ACC_CPU_B_SEQ_T_SEQ_ENABLE@1 "
         "ALPAKA_ACC_CPU_B_SEQ_T_THREADS_ENABLE@0 "
         "ALPAKA_ACC_GPU_CUDA_ENABLE@11.3\n"
-        "Use the values 0 and 1 to disable and enable backend.",
+        "Use the values 0 and 1 to disable or enable a back-end.",
     )
 
     parser.add_argument(
@@ -328,17 +328,17 @@ def main():
     )
 
     parser.add_argument(
-        "--boost", type=str, action=VersionAction, help="Set boost version."
+        "--boost", type=str, action=VersionAction, help="Set Boost version."
     )
 
     parser.add_argument("--cxx", type=str, choices=["17", "20"], help="C++ version.")
 
     parser.add_argument(
-        "--print-backends", action="store_true", help="Print all available backends."
+        "--print-backends", action="store_true", help="Print all available back-ends."
     )
 
     parser.add_argument(
-        "--print-parameters", action="store_true", help="Print validated parameter."
+        "--print-parameters", action="store_true", help="Print validated parameters."
     )
 
     args = parser.parse_args()

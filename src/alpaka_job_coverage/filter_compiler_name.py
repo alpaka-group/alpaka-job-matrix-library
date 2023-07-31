@@ -10,11 +10,9 @@ from typeguard import typechecked
 
 
 def get_required_parameter() -> List[str]:
-    """Return a list of parameter names, which are required to use the filter
-    of this module.
-
+    """Returns a list of parameters which are required for using the filter defined by this module.
     Returns:
-        List[str]: list of parameter names
+        List[str]: list of parameters
     """
     return [HOST_COMPILER, DEVICE_COMPILER]
 
@@ -34,7 +32,7 @@ def general_compiler_filter_typed(
         two items.
         output (Optional[Union[io.StringIO, io.TextIOWrapper]]): Write
         additional information about filter decisions to the IO object
-        (io.SringIO, sys.stdout, sys.stderr). If it is None, no information are
+        (io.SringIO, sys.stdout, sys.stderr). If it is None no information is
         generated.
 
     Returns:
@@ -53,7 +51,7 @@ def general_compiler_filter(
         up to all combination fields and at least two items.
         output (Optional[Union[io.StringIO, io.TextIOWrapper]]): Write
         additional information about filter decisions to the IO object
-        (io.SringIO, sys.stdout, sys.stderr). If it is None, no information are
+        (io.SringIO, sys.stdout, sys.stderr). If it is None no information is
         generated.
 
     Returns:
@@ -75,7 +73,7 @@ def general_compiler_filter(
             != row[param_map[DEVICE_COMPILER]][NAME]
         )
     ):
-        reason(output, "host and device compiler needs to be the same, except for nvcc")
+        reason(output, "host and device compiler must be the same (except for nvcc)")
         return False
 
     # only clang and gcc are allowed as nvcc host compiler
@@ -83,7 +81,7 @@ def general_compiler_filter(
         row_check_name(row, HOST_COMPILER, "==", GCC)
         or row_check_name(row, HOST_COMPILER, "==", CLANG)
     ):
-        reason(output, "only clang and gcc are allowed as nvcc host compiler")
+        reason(output, "only clang and gcc are allowed as nvcc host compilers")
         return False
 
     return True

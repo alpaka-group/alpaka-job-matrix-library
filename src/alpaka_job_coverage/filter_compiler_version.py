@@ -16,11 +16,9 @@ from typeguard import typechecked
 
 
 def get_required_parameter() -> List[str]:
-    """Return a list of parameter names, which are required to use the filter
-    of this module.
-
+    """Returns a list of parameters which are required for using the filter defined by this module.
     Returns:
-        List[str]: list of parameter names
+        List[str]: list of parameters
     """
     return [HOST_COMPILER, DEVICE_COMPILER]
 
@@ -40,7 +38,7 @@ def compiler_version_filter_typed(
         two items.
         output (Optional[Union[io.StringIO, io.TextIOWrapper]]): Write
         additional information about filter decisions to the IO object
-        (io.SringIO, sys.stdout, sys.stderr). If it is None, no information are
+        (io.SringIO, sys.stdout, sys.stderr). If it is None no information is
         generated.
 
     Returns:
@@ -59,7 +57,7 @@ def compiler_version_filter(
         up to all combination fields and at least two items.
         output (Optional[Union[io.StringIO, io.TextIOWrapper]]): Write
         additional information about filter decisions to the IO object
-        (io.SringIO, sys.stdout, sys.stderr). If it is None, no information are
+        (io.SringIO, sys.stdout, sys.stderr). If it is None no information is
         generated.
 
     Returns:
@@ -79,7 +77,7 @@ def compiler_version_filter(
     ):
         reason(
             output,
-            "host and device compiler needs to have the same version except for nvcc",
+            "the host and device compilers must have the same version (except for nvcc)",
         )
         return False
 
@@ -113,8 +111,8 @@ def compiler_version_filter(
                         ) > pk_version.parse(combination[cuda_host_compiler_version]):
                             reason(
                                 output,
-                                f"nvcc {row[param_map[DEVICE_COMPILER]][VERSION]} "
-                                f"does not support gcc {row[param_map[HOST_COMPILER]][VERSION]}",
+                                f"nvcc-{row[param_map[DEVICE_COMPILER]][VERSION]} "
+                                f"does not support gcc-{row[param_map[HOST_COMPILER]][VERSION]}",
                             )
                             return False
                         else:
@@ -130,7 +128,7 @@ def compiler_version_filter(
                 ):
                     reason(
                         output,
-                        "since CUDA 11.4, the minimum supported GCC compiler is GCC 6",
+                        "as of CUDA 11.4 the minimum required GCC compiler is gcc-6",
                     )
                     return False
 
@@ -141,7 +139,7 @@ def compiler_version_filter(
             ) and row_check_version(row, DEVICE_COMPILER, "<=", "11.5"):
                 reason(
                     output,
-                    "clang as host compiler is disabled for nvcc 11.3 until 11.5",
+                    "clang as host compiler is disabled for nvcc-11.3 to 11.5",
                 )
                 return False
 
@@ -172,8 +170,8 @@ def compiler_version_filter(
                         ) > pk_version.parse(combination[cuda_host_compiler_version]):
                             reason(
                                 output,
-                                f"nvcc {row[param_map[DEVICE_COMPILER]][VERSION]} "
-                                f"does not support clang {row[param_map[HOST_COMPILER]][VERSION]}",
+                                f"nvcc-{row[param_map[DEVICE_COMPILER]][VERSION]} "
+                                f"does not support clang-{row[param_map[HOST_COMPILER]][VERSION]}",
                             )
                             return False
                         else:

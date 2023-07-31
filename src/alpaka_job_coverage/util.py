@@ -349,8 +349,8 @@ def is_supported_sw_version(name: str, version: str, verbose=True) -> bool:
 
 
 def reason(output: Optional[Union[io.StringIO, io.TextIOWrapper]], msg: str):
-    """Write the message to output, if it is not None. The function is used
-    in filter function to print additional information of filter decisions.
+    """Write the message to output if it is not None. This function is used
+    in filter functions to print additional information about filter decisions.
 
     Args:
         output (Optional[Union[io.StringIO, io.TextIOWrapper]]): IO object.
