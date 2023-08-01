@@ -7,6 +7,7 @@ from alpaka_job_coverage.filter_software_dependency import (
     software_dependency_filter_typed,
 )
 from alpaka_job_coverage.globals import *
+from utils import manual_version_test
 
 
 def full_filter_chain(row) -> bool:
@@ -390,7 +391,9 @@ class TestNvccGccCompatibility(unittest.TestCase):
             ("42.0", "45", True),
         ]
 
-        # TODO: add is_supported_sw_version to verify that our test version is not supported
+        # verify that our test version are not supported
+        manual_version_test(self, NVCC, [], ["42.0"])
+        manual_version_test(self, GCC, [], ["45"])
 
         for nvcc_version, gcc_version, expected_value in expected_results:
             self.assertEqual(
@@ -468,7 +471,9 @@ class TestNvccClangCompatibility(unittest.TestCase):
             ("42.0", "45", True),
         ]
 
-        # TODO: add is_supported_sw_version to verify that our test version is not supported
+        # verify that our test version are not supported
+        manual_version_test(self, NVCC, [], ["42.0"])
+        manual_version_test(self, CLANG, [], ["45"])
 
         for nvcc_version, clang_version, expected_value in expected_results:
             self.assertEqual(
@@ -500,7 +505,8 @@ class TestNvccCxxStandard(unittest.TestCase):
     # Test the combination of NVCC as device compiler an the C++ standard.
     # If SDK version is unknown, all C++ standards should be allowed.
     def test_nvcc_cxx(self):
-        # TODO: add is_supported_sw_version to verify that our test version is not supported
+        # verify that our test version are not supported
+        manual_version_test(self, NVCC, [], ["12.2, 45.0"])
 
         for nvcc_version, max_cxx in [
             ("11.0", 17),
@@ -511,7 +517,7 @@ class TestNvccCxxStandard(unittest.TestCase):
             # not released version
             # therefore they should support all C++ versions
             ("12.2", 32),
-            ("13.0", 32),
+            ("45.0", 32),
         ]:
             for cxx_version in [11, 14, 17, 20, 23, 26, 29, 32]:
                 comb = [(NVCC, nvcc_version), (CXX_STANDARD, str(cxx_version))]

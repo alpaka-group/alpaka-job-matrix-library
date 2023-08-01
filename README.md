@@ -40,6 +40,14 @@ If you want to use a project-specific parameter, you can simply add it to the pa
 * The input of the filter is a combination of the values of the individual parameter fields, and the combination does not have to be complete. The list can contain at least 2 parameter fields up to all. You must check whether a parameter field is included in the current combination.
 * If a parameter field is not included in the current combination, it means that it can contain any possible value of this parameter. In practice, this means that if you only check for the presence of the parameter and return `False`, if the parameter is not present, no combination is possible.
 
+# ajc-validate
+
+`ajc-validate` is a tool which is installed together with the `alpaka-job-coverage` library. The tool allows to check whether a combination of parameters passes the different filters and displays the reason if not.
+
+![ajc-validate example](docs/images/ajc-validator-example.png)
+
+**Hint:** The source code of the tool is located in the file [validate.py](src/alpaka_job_coverage/validate.py).
+
 # Developing
 
 It is strongly recommended to use a Python environment for developing the code, such as `virtualenv` or a `conda` environment. The following code uses a `virtualenv`.
@@ -48,6 +56,7 @@ It is strongly recommended to use a Python environment for developing the code, 
 2. Activate the environment: `source env/bin/activate`
 3. Install the library: `python setup.py develop`
 4. Test the installation with the example: `python3 example/example.py 3.0`
+5. You can run the unit tests by going to the `test` directory and running `python -m unittest`
 
 If the example works correctly, a `job.yml` will be created in the current directory. You can also run `python3 example/example.py --help` to see additional options.
 
