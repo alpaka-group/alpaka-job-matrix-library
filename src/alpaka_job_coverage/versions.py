@@ -10,7 +10,7 @@ from typeguard import typechecked
 # disabled (date: 26.7.2023). Maybe in future, a Boost specific case will be
 # added.
 versions: Dict[str, List[str]] = {
-    GCC: ["6", "7", "8", "9", "10", "11", "12"],
+    GCC: ["6", "7", "8", "9", "10", "11", "12", "13"],
     CLANG: ["6", "7", "8", "9", "10", "11", "12", "13", "14", "15", "16"],
     NVCC: [
         "10.0",
@@ -27,6 +27,7 @@ versions: Dict[str, List[str]] = {
         "11.8",
         "12.0",
         "12.1",
+        "12.2",
     ],
     HIPCC: ["5.0", "5.1", "5.2", "5.3", "5.4", "5.5"],
     UBUNTU: ["18.04", "20.04"],
