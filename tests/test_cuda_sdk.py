@@ -372,6 +372,8 @@ class TestNvccGccCompatibility(unittest.TestCase):
             ("12.0", "13", False),
             ("12.1", "12", True),
             ("12.1", "13", False),
+            ("12.2", "12", True),
+            ("12.2", "13", False),
         ]
 
         for nvcc_version, gcc_version, expected_value in expected_results:
@@ -452,6 +454,8 @@ class TestNvccClangCompatibility(unittest.TestCase):
             ("12.0", "15", False),
             ("12.1", "15", True),
             ("12.1", "16", False),
+            ("12.2", "15", True),
+            ("12.2", "16", False),
         ]
 
         for nvcc_version, clang_version, expected_value in expected_results:
@@ -513,10 +517,10 @@ class TestNvccCxxStandard(unittest.TestCase):
             ("11.2", 17),
             ("11.8", 17),
             ("12.0", 20),
-            ("12.1", 20),
+            ("12.2", 20),
             # not released version
             # therefore they should support all C++ versions
-            ("12.2", 32),
+            ("12.3", 32),
             ("45.0", 32),
         ]:
             for cxx_version in [11, 14, 17, 20, 23, 26, 29, 32]:

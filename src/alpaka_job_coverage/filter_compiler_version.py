@@ -88,8 +88,11 @@ def compiler_version_filter(
         # set the and lowest highest supported gcc version for nvcc
         if row_check_name(row, HOST_COMPILER, "==", GCC):
             combinations = [
+                # it needs to be defined the CUDA SDK version, which supports
+                # a new gcc version the first time
+                # the latest CUDA SDK, also if it supports no new gcc version
                 # (maximum_CUDA_SDK_version, "maximum_gcc_version")
-                ("12.1", "12"),
+                ("12.2", "12"),
                 ("12.0", "12"),
                 ("11.4", "11"),
                 ("11.1", "10"),
@@ -144,7 +147,11 @@ def compiler_version_filter(
                 return False
 
             combinations = [
+                # it needs to be defined the CUDA SDK version, which supports
+                # a new clang version the first time
+                # the latest CUDA SDK, also if it supports no new clang version
                 # (maximum_CUDA_SDK_version, "maximum_clang_version")
+                ("12.2", "15"),
                 ("12.1", "15"),
                 ("12.0", "14"),
                 ("11.6", "13"),

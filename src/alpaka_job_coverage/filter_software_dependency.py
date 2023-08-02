@@ -94,7 +94,7 @@ def software_dependency_filter(
         nvcc_cxx_versions = [
             ("11.0", 17),  # NVCC versions older than 11.0 does not support C++ 17
             ("12.0", 20),  # NVCC versions older than 12.0 does not support C++ 20
-            ("12.2", 23),  # NVCC 12.2 is not released yet, therefore we need to
+            ("12.3", 23),  # NVCC 12.3 is not released yet, therefore we need to
             # expect that it could support C++23
         ]
         for nvcc_version, cxx_version in nvcc_cxx_versions:
