@@ -317,37 +317,6 @@ def reorder_job_list_single_regex(
     return new_job_list
 
 
-@typechecked
-def is_supported_sw_version(name: str, version: str, verbose=True) -> bool:
-    def warning_text(text: str):
-        return "\033[1;33mWARNING: " + text + "\033[0m"
-
-    support_versions: Dict[str, Tuple[str, str]] = {
-        GCC: ("5", "13"),
-        CLANG: ("6.0", "15"),
-        NVCC: ("10.0", "12.1"),
-        HIPCC: ("4.3", "5.1"),
-        CMAKE: ("3.18", "3.22"),
-        BOOST: ("1.66.0", "1.78.0"),
-        CXX_STANDARD: ("14", "20"),
-    }
-
-    if name not in support_versions:
-        if verbose:
-            print(warning_text(f"{name} is an unknown software"))
-        return False
-    else:
-        parsed_version = pk_version.parse(version)
-        if parsed_version < pk_version.parse(
-            support_versions[name][0]
-        ) or parsed_version > pk_version.parse(support_versions[name][1]):
-            if verbose:
-                print(warning_text(f"{name} {version} is not supported"))
-            return False
-
-    return True
-
-
 def reason(output: Optional[Union[io.StringIO, io.TextIOWrapper]], msg: str):
     """Write the message to output if it is not None. This function is used
     in filter functions to print additional information about filter decisions.
