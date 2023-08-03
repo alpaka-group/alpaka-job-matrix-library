@@ -67,7 +67,7 @@ def validate_args_compiler(arguments: Dict[str, str]) -> Dict[str, Tuple[str, st
         Dict[str, Tuple[str, str]]: Returns parsed compiler name and version
     """
     validated_args = {}
-    known_compiler = [GCC, CLANG, NVCC, CLANG_CUDA, HIPCC]
+    known_compiler = [GCC, CLANG, NVCC, CLANG_CUDA, HIPCC, ICPX]
 
     for parameter_name, parameter in arguments.items():
         if "@" not in parameter:

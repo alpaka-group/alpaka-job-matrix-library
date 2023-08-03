@@ -24,6 +24,7 @@ class TestHostDeviceCompiler(unittest.TestCase):
             [(GCC, "0"), (GCC, "0")],
             [(CLANG, "0"), (CLANG, "0")],
             [(HIPCC, "0"), (HIPCC, "0")],
+            [(ICPX, "0"), (ICPX, "0")],
         ]
 
         for comb in valid_combs:
@@ -34,6 +35,9 @@ class TestHostDeviceCompiler(unittest.TestCase):
             [(GCC, "0"), (CLANG, "0")],
             [(GCC, "0"), (HIPCC, "0")],
             [(HIPCC, "0"), (CLANG, "0")],
+            [(GCC, "0"), (ICPX, "0")],
+            [(CLANG, "0"), (ICPX, "0")],
+            [(ICPX, "0"), (CLANG, "0")]
         ]
 
         for comb in invalid_combs:
