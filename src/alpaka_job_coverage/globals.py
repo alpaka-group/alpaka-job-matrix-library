@@ -18,6 +18,7 @@ CLANG: str = "clang"
 NVCC: str = "nvcc"
 CLANG_CUDA: str = "clang-cuda"
 HIPCC: str = "hipcc"
+ICPX: str = "icpx"
 
 # alpaka backend names
 ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE: str = "alpaka_ACC_CPU_B_SEQ_T_SEQ_ENABLE"
@@ -29,6 +30,7 @@ ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE: str = "alpaka_ACC_CPU_B_SEQ_T_OMP2_ENABLE"
 ALPAKA_ACC_ANY_BT_OMP5_ENABLE: str = "alpaka_ACC_ANY_BT_OMP5_ENABLE"
 ALPAKA_ACC_GPU_CUDA_ENABLE: str = "alpaka_ACC_GPU_CUDA_ENABLE"
 ALPAKA_ACC_GPU_HIP_ENABLE: str = "alpaka_ACC_GPU_HIP_ENABLE"
+ALPAKA_ACC_SYCL_ENABLE: str = "alpaka_ACC_SYCL_ENABLE"
 BACKENDS_LIST: List[str] = [
     ALPAKA_ACC_CPU_B_SEQ_T_SEQ_ENABLE,
     ALPAKA_ACC_CPU_B_SEQ_T_THREADS_ENABLE,
@@ -39,6 +41,7 @@ BACKENDS_LIST: List[str] = [
     ALPAKA_ACC_ANY_BT_OMP5_ENABLE,
     ALPAKA_ACC_GPU_CUDA_ENABLE,
     ALPAKA_ACC_GPU_HIP_ENABLE,
+    ALPAKA_ACC_SYCL_ENABLE,
 ]
 
 # if want to use version comparison functions from util.py, you need to use ON_VER and OFF_VER

@@ -200,5 +200,26 @@ def compiler_backend_filter(
                 "it is not allowed to enable the CUDA back-end",
             )
             return False
+        
+    ###########################
+    ## icpx device compiler
+    ###########################
 
+    # Don't use icpx for the CUDA and HIP back-ends
+    if row_check_name(row, DEVICE_COMPILER, "==", ICPX):
+        if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF_VER):
+            reason(
+                output,
+                "if icpx is the device compiler it is not allowed to enable the CUDA "
+                "back-end",
+            )
+            return False
+        
+        if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER):
+            reason(
+                output,
+                "if icpx is the device compiler it is not allowed to enable the HIP "
+                "back-end",
+            )
+            return False
     return True
