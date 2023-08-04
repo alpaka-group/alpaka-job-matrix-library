@@ -37,8 +37,8 @@ class TestIcpxHostDeviceCompilerBackend(unittest.TestCase):
     def test_only_host_compiler(self):
         valid_combs = [
             [(ICPX, "0")],
-            [(ICPX, "2023.1")],
-            [(ICPX, "2023.2")],
+            [(ICPX, "2023.1.0")],
+            [(ICPX, "2023.2.0")],
         ]
 
         for comb in valid_combs:
@@ -130,8 +130,8 @@ class TestIcpxHostDeviceCompilerBackend(unittest.TestCase):
     # and has the same compiler version
     def test_host_device_compiler_version(self):
         valid_combs = [
-            [(ICPX, "2023.1"), (ICPX, "2023.1")],
-            [(ICPX, "2023.2"), (ICPX, "2023.2")],
+            [(ICPX, "2023.1.0"), (ICPX, "2023.1.0")],
+            [(ICPX, "2023.2.0"), (ICPX, "2023.2.0")],
         ]
 
         for comb in valid_combs:
@@ -162,8 +162,8 @@ class TestIcpxHostDeviceCompilerBackend(unittest.TestCase):
             )
 
         invalid_combs = [
-            [(ICPX, "2023.1"), (ICPX, "2023.2")],
-            [(ICPX, "2023.2"), (ICPX, "2023.1")],
+            [(ICPX, "2023.1.0"), (ICPX, "2023.2.0")],
+            [(ICPX, "2023.2.0"), (ICPX, "2023.1.0")],
         ]
 
         for comb in invalid_combs:
@@ -196,11 +196,11 @@ class TestIcpxHostDeviceCompilerBackend(unittest.TestCase):
     # Allowed back-ends are SYCL and the CPU back-ends
     def test_host_device_compiler_backend(self):
         valid_combs = [
-            [(ICPX, "2023.1"), (ICPX, "2023.1"), [(ALPAKA_ACC_SYCL_ENABLE, ON_VER)]],
-            [(ICPX, "2023.2"), (ICPX, "2023.2"), [(ALPAKA_ACC_SYCL_ENABLE, ON_VER)]],
+            [(ICPX, "2023.1.0"), (ICPX, "2023.1.0"), [(ALPAKA_ACC_SYCL_ENABLE, ON_VER)]],
+            [(ICPX, "2023.2.0"), (ICPX, "2023.2.0"), [(ALPAKA_ACC_SYCL_ENABLE, ON_VER)]],
             [
-                (ICPX, "2023.1"),
-                (ICPX, "2023.1"),
+                (ICPX, "2023.1.0"),
+                (ICPX, "2023.1.0"),
                 [
                     (ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLE, ON_VER),
                     (ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE, ON_VER),
@@ -208,8 +208,8 @@ class TestIcpxHostDeviceCompilerBackend(unittest.TestCase):
                 ],
             ],
             [
-                (ICPX, "2023.2"),
-                (ICPX, "2023.2"),
+                (ICPX, "2023.2.0"),
+                (ICPX, "2023.2.0"),
                 [
                     (ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLE, ON_VER),
                     (ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE, ON_VER),
@@ -253,12 +253,12 @@ class TestIcpxHostDeviceCompilerBackend(unittest.TestCase):
             )
 
         invalid_combs = [
-            [(ICPX, "2023.1"), (ICPX, "2023.1"), [(ALPAKA_ACC_GPU_HIP_ENABLE, "4.4")]],
-            [(ICPX, "2023.2"), (ICPX, "2023.2"), [(ALPAKA_ACC_GPU_HIP_ENABLE, "5.2")]],
-            [(ICPX, "2023.1"), (ICPX, "2023.1"), [(ALPAKA_ACC_GPU_CUDA_ENABLE, "12.1")]],
+            [(ICPX, "2023.1.0"), (ICPX, "2023.1.0"), [(ALPAKA_ACC_GPU_HIP_ENABLE, "4.4")]],
+            [(ICPX, "2023.2.0"), (ICPX, "2023.2.0"), [(ALPAKA_ACC_GPU_HIP_ENABLE, "5.2")]],
+            [(ICPX, "2023.1.0"), (ICPX, "2023.1.0"), [(ALPAKA_ACC_GPU_CUDA_ENABLE, "12.1")]],
             [
-                (ICPX, "2023.2"),
-                (ICPX, "2023.2"),
+                (ICPX, "2023.2.0"),
+                (ICPX, "2023.2.0"),
                 [
                     (ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLE, ON_VER),
                     (ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE, ON_VER),
@@ -267,8 +267,8 @@ class TestIcpxHostDeviceCompilerBackend(unittest.TestCase):
             ],
             # it is forbidden to enable the CUDA and SYCL back-end at the same time
             [
-                (ICPX, "2023.1"),
-                (ICPX, "2023.1"),
+                (ICPX, "2023.1.0"),
+                (ICPX, "2023.1.0"),
                 [
                     (ALPAKA_ACC_GPU_CUDA_ENABLE, "11.2"),
                     (ALPAKA_ACC_SYCL_ENABLE, ON_VER),
