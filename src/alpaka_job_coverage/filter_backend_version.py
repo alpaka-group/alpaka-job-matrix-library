@@ -71,14 +71,24 @@ def compiler_backend_filter(
         if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF_VER):
             reason(
                 output,
-                "gcc as device compiler cannot compile with enabled alpaka_ACC_GPU_CUDA_ENABLE back-end",
+                "gcc as device compiler cannot compile with enabled "
+                "alpaka_ACC_GPU_CUDA_ENABLE back-end",
             )
             return False
 
         if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER):
             reason(
                 output,
-                "gcc as device compiler cannot compile with enabled alpaka_ACC_GPU_HIP_ENABLE back-end",
+                "gcc as device compiler cannot compile with enabled "
+                "alpaka_ACC_GPU_HIP_ENABLE back-end",
+            )
+            return False
+        
+        if row_check_backend_version(row, ALPAKA_ACC_SYCL_ENABLE, "!=", OFF_VER):
+            reason(
+                output,
+                "gcc as device compiler cannot compile with enabled "
+                "alpaka_ACC_SYCL_ENABLE back-end",
             )
             return False
 
@@ -90,7 +100,8 @@ def compiler_backend_filter(
         if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "!=", OFF_VER):
             reason(
                 output,
-                "clang as device compiler cannot compile with enabled alpaka_ACC_GPU_CUDA_ENABLE back-end (use clang-cuda instead)",
+                "clang as device compiler cannot compile with enabled "
+                "alpaka_ACC_GPU_CUDA_ENABLE back-end (use clang-cuda instead)",
             )
             return False
 
@@ -102,12 +113,20 @@ def compiler_backend_filter(
                 "alpaka_ACC_GPU_HIP_ENABLE back-end (use hipcc instead)",
             )
             return False
+        
+        if row_check_backend_version(row, ALPAKA_ACC_SYCL_ENABLE, "!=", OFF_VER):
+            reason(
+                output,
+                "clang as device compiler cannot compile with enabled "
+                "alpaka_ACC_SYCL_ENABLE back-end (use icpx instead)",
+            )
+            return False
 
     ###########################
     ## nvcc device compiler
     ###########################
 
-    if row_check_name(row, DEVICE_COMPILER, "==", NVCC):
+    if row_check_name(row, DEVICE_COMPILER, "==", NVCC):       
         # the nvcc compiler needs the same version, like the backend
         if row_check_backend_version(
             row,
@@ -127,6 +146,14 @@ def compiler_backend_filter(
                 output,
                 "If nvcc is the device compiler and the CUDA back-end is enabled "
                 "it is not allowed to enable the HIP back-end",
+            )
+            return False
+        
+        if row_check_backend_version(row, ALPAKA_ACC_SYCL_ENABLE, "!=", OFF_VER):
+            reason(
+                output,
+                "If nvcc is the device compiler it is not allowed to enable "
+                "the SYCL back-end"
             )
             return False
 
@@ -150,6 +177,15 @@ def compiler_backend_filter(
                 output,
                 "if clang-cuda is the device compiler and the CUDA back-end is enabled "
                 "it is not allowed to enable the HIP back-end",
+            )
+            return False
+        
+        # clang-cuda doesn't support the SYCL back-end
+        if row_check_backend_version(row, ALPAKA_ACC_SYCL_ENABLE, "!=", OFF_VER):
+            reason(
+                output,
+                "if clang-cuda is the device compiler it is not allowed to "
+                "enable the SYCL back-end",
             )
             return False
 
@@ -198,6 +234,14 @@ def compiler_backend_filter(
                 output,
                 "if hipcc is the device compiler and the HIP back-end is enabled, "
                 "it is not allowed to enable the CUDA back-end",
+            )
+            return False
+        
+        if row_check_backend_version(row, ALPAKA_ACC_SYCL_ENABLE, "!=", OFF_VER):
+            reason(
+                output,
+                "if hipcc is the device compiler it is not allowed to enable "
+                "the SYCL back-end",
             )
             return False
         
