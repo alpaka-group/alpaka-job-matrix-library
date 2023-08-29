@@ -271,6 +271,16 @@ class TestHipccHostDeviceCompilerBackend(unittest.TestCase):
                     (ALPAKA_ACC_GPU_HIP_ENABLE, OFF_VER),
                 ],
             ],
+            # the filter should return false when back-ends other than
+            # ALPAKA_ACC_GPU_HIP_ENABLE are defined
+            [
+                (HIPCC, "5.4"),
+                (HIPCC, "5.4"),
+                [
+                    (ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLE, ON_VER),
+                    (ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE, ON_VER),
+                ],
+            ],
             # it is forbidden to enable the CUDA and HIP backend on the same
             # time (only for the CI)
             [

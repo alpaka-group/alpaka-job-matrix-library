@@ -17,7 +17,7 @@ class TestBackendIsNotInRowBackendsOnly(unittest.TestCase):
         param_map = {}
 
     def test_empty_backend_list(self):
-        self.assertTrue(backend_is_not_in_row([], ALPAKA_ACC_GPU_CUDA_ENABLE))
+        self.assertFalse(backend_is_not_in_row([], ALPAKA_ACC_GPU_CUDA_ENABLE))
 
     def test_is_not_in_filled_list_single_element(self):
         self.assertTrue(
@@ -84,10 +84,10 @@ class TestBackendIsNotInRowMixed(unittest.TestCase):
         param_map = {}
 
     def test_empty_backend_list(self):
-        self.assertTrue(backend_is_not_in_row([], ALPAKA_ACC_GPU_CUDA_ENABLE))
+        self.assertFalse(backend_is_not_in_row([], ALPAKA_ACC_GPU_CUDA_ENABLE))
 
     def test_backend_not_included(self):
-        self.assertTrue(
+        self.assertFalse(
             backend_is_not_in_row([(GCC, "9"), (GCC, "9")], ALPAKA_ACC_GPU_CUDA_ENABLE)
         )
 

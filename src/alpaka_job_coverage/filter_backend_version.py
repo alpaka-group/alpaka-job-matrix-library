@@ -8,6 +8,7 @@ from alpaka_job_coverage.util import (
     row_check_name,
     row_check_version,
     row_check_backend_version,
+    backend_is_not_in_row,
     reason,
 )
 from typing import List, Tuple, Union, Optional
@@ -83,7 +84,7 @@ def compiler_backend_filter(
                 "alpaka_ACC_GPU_HIP_ENABLE back-end",
             )
             return False
-        
+
         if row_check_backend_version(row, ALPAKA_ACC_SYCL_ENABLE, "!=", OFF_VER):
             reason(
                 output,
@@ -113,7 +114,7 @@ def compiler_backend_filter(
                 "alpaka_ACC_GPU_HIP_ENABLE back-end (use hipcc instead)",
             )
             return False
-        
+
         if row_check_backend_version(row, ALPAKA_ACC_SYCL_ENABLE, "!=", OFF_VER):
             reason(
                 output,
@@ -126,9 +127,13 @@ def compiler_backend_filter(
     ## nvcc device compiler
     ###########################
 
-    if row_check_name(row, DEVICE_COMPILER, "==", NVCC):       
+    if row_check_name(row, DEVICE_COMPILER, "==", NVCC):
         # the nvcc compiler needs the same version, like the backend
-        if row_check_backend_version(
+        # backend_is_not_in_row() is required in case ALPAKA_ACC_GPU_CUDA_ENABLE
+        # is not defined
+        if backend_is_not_in_row(
+            row, ALPAKA_ACC_GPU_CUDA_ENABLE
+        ) or row_check_backend_version(
             row,
             ALPAKA_ACC_GPU_CUDA_ENABLE,
             "!=",
@@ -148,12 +153,12 @@ def compiler_backend_filter(
                 "it is not allowed to enable the HIP back-end",
             )
             return False
-        
+
         if row_check_backend_version(row, ALPAKA_ACC_SYCL_ENABLE, "!=", OFF_VER):
             reason(
                 output,
                 "If nvcc is the device compiler it is not allowed to enable "
-                "the SYCL back-end"
+                "the SYCL back-end",
             )
             return False
 
@@ -163,7 +168,11 @@ def compiler_backend_filter(
 
     if row_check_name(row, DEVICE_COMPILER, "==", CLANG_CUDA):
         # the CUDA backend needs to be enabled
-        if row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "==", OFF_VER):
+        # backend_is_not_in_row() is required in case ALPAKA_ACC_GPU_CUDA_ENABLE
+        # is not defined
+        if backend_is_not_in_row(
+            row, ALPAKA_ACC_GPU_CUDA_ENABLE
+        ) or row_check_backend_version(row, ALPAKA_ACC_GPU_CUDA_ENABLE, "==", OFF_VER):
             reason(
                 output,
                 "when CLANG_CUDA is set as device compiler "
@@ -179,7 +188,7 @@ def compiler_backend_filter(
                 "it is not allowed to enable the HIP back-end",
             )
             return False
-        
+
         # clang-cuda doesn't support the SYCL back-end
         if row_check_backend_version(row, ALPAKA_ACC_SYCL_ENABLE, "!=", OFF_VER):
             reason(
@@ -217,14 +226,18 @@ def compiler_backend_filter(
 
     # the HIP backend needs to be enabled and has the same version number
     if row_check_name(row, DEVICE_COMPILER, "==", HIPCC):
-        if row_check_backend_version(
+        if backend_is_not_in_row(
+            row, ALPAKA_ACC_GPU_HIP_ENABLE
+        ) or row_check_backend_version(
             row,
             ALPAKA_ACC_GPU_HIP_ENABLE,
             "!=",
             row[param_map[DEVICE_COMPILER]][VERSION],
         ):
             reason(
-                output, "hipcc and the HIP back-end must have the same version number"
+                output,
+                "the HIP back-end needs to be enabled and hipcc and the "
+                "HIP back-end must have the same version number",
             )
             return False
 
@@ -236,7 +249,7 @@ def compiler_backend_filter(
                 "it is not allowed to enable the CUDA back-end",
             )
             return False
-        
+
         if row_check_backend_version(row, ALPAKA_ACC_SYCL_ENABLE, "!=", OFF_VER):
             reason(
                 output,
@@ -244,7 +257,7 @@ def compiler_backend_filter(
                 "the SYCL back-end",
             )
             return False
-        
+
     ###########################
     ## icpx device compiler
     ###########################
@@ -258,7 +271,7 @@ def compiler_backend_filter(
                 "back-end",
             )
             return False
-        
+
         if row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER):
             reason(
                 output,
