@@ -294,6 +294,21 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
             ]
             self.assertFalse(compiler_backend_filter_typed(comb4))
 
+        # the filter should return false when back-ends other than
+        # ALPAKA_ACC_GPU_CUDA_ENABLE are defined
+        self.assertFalse(
+            compiler_backend_filter_typed(
+                [
+                    (CLANG, "9"),
+                    (NVCC, "11.5"),
+                    [
+                        (ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLE, ON_VER),
+                        (ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE, ON_VER),
+                    ],
+                ]
+            )
+        )
+
 
 class TestNvccGccCompatibility(unittest.TestCase):
     def setUp(self):
@@ -763,6 +778,17 @@ class TestClangCUDA(unittest.TestCase):
                     (ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE, OFF_VER),
                     (ALPAKA_ACC_GPU_CUDA_ENABLE, "11.2"),
                     (ALPAKA_ACC_GPU_HIP_ENABLE, "5.0"),
+                ],
+            ],
+            # the filter should return false when back-ends other than
+            # ALPAKA_ACC_GPU_CUDA_ENABLE are defined
+            [
+                (CLANG_CUDA, "14"),
+                (CLANG_CUDA, "14"),
+                [
+                    (ALPAKA_ACC_CPU_B_TBB_T_SEQ_ENABLE, ON_VER),
+                    (ALPAKA_ACC_CPU_B_SEQ_T_OMP2_ENABLE, ON_VER),
+                    (ALPAKA_ACC_CPU_B_OMP2_T_SEQ_ENABLE, OFF_VER),
                 ],
             ],
         ]

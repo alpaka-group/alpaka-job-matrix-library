@@ -82,7 +82,7 @@ def is_in_row(row: List, name: str) -> bool:
     Returns:
         bool: Return True, if parameter is in row.
     """
-    return param_map[name] < len(row)
+    return name in param_map and param_map[name] < len(row)
 
 
 # no typechecked, because function is performance critical
@@ -155,7 +155,7 @@ def backend_is_not_in_row(row: List, backend: str) -> bool:
     """
 
     if not is_in_row(row, BACKENDS):
-        return True
+        return False
     else:
         for row_backend in row[param_map[BACKENDS]]:
             if row_backend[NAME] == backend:
