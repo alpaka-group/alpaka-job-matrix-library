@@ -62,6 +62,10 @@ If the example works correctly, a `job.yml` will be created in the current direc
 
 Now the library is available in the environment. Therefore you can easily use the library in your own projects via `import alpaka_job_coverage as ajc`.
 
+## Formatting the source code
+
+The source code is formatted using the [black](https://pypi.org/project/black/) formatter and the default style guide. You must install it and run `black /path/to/file` to format a file. A CI job checks that all files are formatted correctly. If the job fails, a PR cannot be merged.
+
 ## Contribution
 
 This section contains some hints for developing new functions. The hints are mainly for people who have no experience with `setuptools` and building `pip` packages.

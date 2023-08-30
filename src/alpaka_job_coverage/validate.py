@@ -114,7 +114,9 @@ def validate_args_backend(arguments: List[str]) -> Dict[str, List[Tuple[str, str
             version = splitted_name_version[1]
 
             if name not in BACKENDS_LIST:
-                exit_error(f"Unknown back-end: {name}\nKnown back-ends: {BACKENDS_LIST}")
+                exit_error(
+                    f"Unknown back-end: {name}\nKnown back-ends: {BACKENDS_LIST}"
+                )
 
             # use parse() function to validate that the version has a valid shape
             try:

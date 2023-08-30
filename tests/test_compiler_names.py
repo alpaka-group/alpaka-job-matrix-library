@@ -37,7 +37,7 @@ class TestHostDeviceCompiler(unittest.TestCase):
             [(HIPCC, "0"), (CLANG, "0")],
             [(GCC, "0"), (ICPX, "0")],
             [(CLANG, "0"), (ICPX, "0")],
-            [(ICPX, "0"), (CLANG, "0")]
+            [(ICPX, "0"), (CLANG, "0")],
         ]
 
         for comb in invalid_combs:
