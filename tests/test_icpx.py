@@ -18,6 +18,7 @@ def full_filter_chain(row) -> bool:
         and software_dependency_filter_typed(row)
     )
 
+
 class TestIcpxHostDeviceCompilerBackend(unittest.TestCase):
     def setUp(self):
         global param_map
@@ -196,8 +197,16 @@ class TestIcpxHostDeviceCompilerBackend(unittest.TestCase):
     # Allowed back-ends are SYCL and the CPU back-ends
     def test_host_device_compiler_backend(self):
         valid_combs = [
-            [(ICPX, "2023.1.0"), (ICPX, "2023.1.0"), [(ALPAKA_ACC_SYCL_ENABLE, ON_VER)]],
-            [(ICPX, "2023.2.0"), (ICPX, "2023.2.0"), [(ALPAKA_ACC_SYCL_ENABLE, ON_VER)]],
+            [
+                (ICPX, "2023.1.0"),
+                (ICPX, "2023.1.0"),
+                [(ALPAKA_ACC_SYCL_ENABLE, ON_VER)],
+            ],
+            [
+                (ICPX, "2023.2.0"),
+                (ICPX, "2023.2.0"),
+                [(ALPAKA_ACC_SYCL_ENABLE, ON_VER)],
+            ],
             [
                 (ICPX, "2023.1.0"),
                 (ICPX, "2023.1.0"),
@@ -253,9 +262,21 @@ class TestIcpxHostDeviceCompilerBackend(unittest.TestCase):
             )
 
         invalid_combs = [
-            [(ICPX, "2023.1.0"), (ICPX, "2023.1.0"), [(ALPAKA_ACC_GPU_HIP_ENABLE, "4.4")]],
-            [(ICPX, "2023.2.0"), (ICPX, "2023.2.0"), [(ALPAKA_ACC_GPU_HIP_ENABLE, "5.2")]],
-            [(ICPX, "2023.1.0"), (ICPX, "2023.1.0"), [(ALPAKA_ACC_GPU_CUDA_ENABLE, "12.1")]],
+            [
+                (ICPX, "2023.1.0"),
+                (ICPX, "2023.1.0"),
+                [(ALPAKA_ACC_GPU_HIP_ENABLE, "4.4")],
+            ],
+            [
+                (ICPX, "2023.2.0"),
+                (ICPX, "2023.2.0"),
+                [(ALPAKA_ACC_GPU_HIP_ENABLE, "5.2")],
+            ],
+            [
+                (ICPX, "2023.1.0"),
+                (ICPX, "2023.1.0"),
+                [(ALPAKA_ACC_GPU_CUDA_ENABLE, "12.1")],
+            ],
             [
                 (ICPX, "2023.2.0"),
                 (ICPX, "2023.2.0"),
