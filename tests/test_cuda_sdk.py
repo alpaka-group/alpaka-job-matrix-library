@@ -216,7 +216,7 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
 
     def test_backend_versions(self):
         # for NVCC, the compiler version needs to be equal to the backend version
-        for version in ["10.2", "11.0", "12.2"]:
+        for version in ["10.2", "11.0", "12.3"]:
             comb1 = [
                 (GCC, "9"),
                 (NVCC, version),
@@ -256,7 +256,7 @@ class TestGeneralFilterFunctionality(unittest.TestCase):
         for nvcc_version, backend_version in [
             ("10.1", "10.2"),
             ("11.0", "11.5"),
-            ("11.8", "12.2"),
+            ("11.8", "12.3"),
         ]:
             comb1 = [
                 (GCC, "9"),
@@ -389,6 +389,8 @@ class TestNvccGccCompatibility(unittest.TestCase):
             ("12.1", "13", False),
             ("12.2", "12", True),
             ("12.2", "13", False),
+            ("12.3", "12", True),
+            ("12.3", "13", False),
         ]
 
         for nvcc_version, gcc_version, expected_value in expected_results:
@@ -471,6 +473,8 @@ class TestNvccClangCompatibility(unittest.TestCase):
             ("12.1", "16", False),
             ("12.2", "15", True),
             ("12.2", "16", False),
+            ("12.3", "16", True),
+            ("12.3", "17", False),
         ]
 
         for nvcc_version, clang_version, expected_value in expected_results:
@@ -525,17 +529,17 @@ class TestNvccCxxStandard(unittest.TestCase):
     # If SDK version is unknown, all C++ standards should be allowed.
     def test_nvcc_cxx(self):
         # verify that our test version are not supported
-        manual_version_test(self, NVCC, [], ["12.2, 45.0"])
+        manual_version_test(self, NVCC, [], ["12.3, 45.0"])
 
         for nvcc_version, max_cxx in [
             ("11.0", 17),
             ("11.2", 17),
             ("11.8", 17),
             ("12.0", 20),
-            ("12.2", 20),
+            ("12.3", 20),
             # not released version
             # therefore they should support all C++ versions
-            ("12.3", 32),
+            ("12.4", 32),
             ("45.0", 32),
         ]:
             for cxx_version in [11, 14, 17, 20, 23, 26, 29, 32]:

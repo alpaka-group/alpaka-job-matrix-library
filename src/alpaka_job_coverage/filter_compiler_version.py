@@ -92,7 +92,7 @@ def compiler_version_filter(
                 # a new gcc version the first time
                 # the latest CUDA SDK, also if it supports no new gcc version
                 # (maximum_CUDA_SDK_version, "maximum_gcc_version")
-                ("12.2", "12"),
+                ("12.3", "12"),
                 ("12.0", "12"),
                 ("11.4", "11"),
                 ("11.1", "10"),
@@ -151,6 +151,7 @@ def compiler_version_filter(
                 # a new clang version the first time
                 # the latest CUDA SDK, also if it supports no new clang version
                 # (maximum_CUDA_SDK_version, "maximum_clang_version")
+                ("12.3", "16"),
                 ("12.2", "15"),
                 ("12.1", "15"),
                 ("12.0", "14"),
