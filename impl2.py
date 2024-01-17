@@ -3,6 +3,8 @@ from copy import deepcopy
 from typing import Dict, Tuple, Callable
 from dataclasses import dataclass
 from typeguard import typechecked
+from packaging.version import Version
+import packaging.version as pkv
 
 from alpaka_job_coverage.globals import *  # pylint: disable=wildcard-import,unused-wildcard-import
 
@@ -24,11 +26,10 @@ class FilterAdapter:
         return self.filter(ordered_row)
 
 
-# TODO(simeonehrig): Maybe the return values should be List[OrderedDict[Tuple[str, packaging.version.Version]]]
 @typechecked
 def get_matrix(
     parameter: OrderedDict, filter_func: Callable
-) -> List[OrderedDict[str, Tuple[str, str]]]:
+) -> List[OrderedDict[str, Tuple[str, Version]]]:
     """Generates a list of test parameter sets via pair wise combination.
 
     Args:
@@ -44,7 +45,7 @@ def get_matrix(
 
     filter = FilterAdapter(param_map, filter_func)
 
-    result: List[OrderedDict[str, Tuple[str, str]]] = []
+    result: List[OrderedDict[str, Tuple[str, Version]]] = []
 
     # convert AllPair specific data types to a generic Python data structure
     # with OrderedDict to provide easier API
@@ -58,10 +59,14 @@ def get_matrix(
 
 
 # no filter rules implemented yet
-def custom_filter(row: OrderedDict[str, Tuple[str, str]]):
+def custom_filter(row: OrderedDict[str, Tuple[str, Version]]):
     # only for demonstration
-    # if CMAKE in row and row[CMAKE][VERSION] == "3.24":
-    #     print(row)
+    # if (
+    #     DEVICE_COMPILER in row
+    #     and row[DEVICE_COMPILER][NAME] == NVCC
+    #     and row[DEVICE_COMPILER][VERSION] < pkv.parse("12.0")
+    # ):
+    #     return False
     return True
 
 
@@ -75,10 +80,10 @@ class ExpectedResult:
 
     v1_parameter_name: str
     v1_name: str
-    v1_version: str
+    v1_version: Version
     v2_parameter_name: str
     v2_name: str
-    v2_version: str
+    v2_version: Version
 
     def __str__(self) -> str:
         return (
@@ -89,7 +94,7 @@ class ExpectedResult:
 
 @typechecked
 def generate_control_matrix(
-    parameters: OrderedDict[str, Tuple[str, str]]
+    parameters: OrderedDict[str, Tuple[str, Version]]
 ) -> List[ExpectedResult]:
     """Generates a list of expected tuple for verification the algorithm. Pair
     wise testing means, that each pair of two parameter sets needs to appears in
@@ -121,7 +126,7 @@ def generate_control_matrix(
 
 @typechecked
 def loop_over_parameter_values(
-    parameters: OrderedDict[str, Tuple[str, str]],
+    parameters: OrderedDict[str, Tuple[str, Version]],
     expectedResults: List[ExpectedResult],
     v1_parameter_name: str,
     v2_parameter_name: str,
@@ -152,7 +157,7 @@ def loop_over_parameter_values(
 
 @typechecked
 def check_for_results(
-    parameter_matrix: List[OrderedDict[str, Tuple[str, str]]],
+    parameter_matrix: List[OrderedDict[str, Tuple[str, Version]]],
     expectedResults: List[ExpectedResult],
 ) -> bool:
     """Check if all expected Results are included in parameter_matrix
@@ -185,8 +190,8 @@ def check_for_results(
     return all_right
 
 
-if __name__ == "__main__":
-    parameters: OrderedDict = OrderedDict()
+def get_parameters() -> OrderedDict[str, Version]:
+    parameters = OrderedDict()
     parameters[HOST_COMPILER] = [
         (GCC, 9),
         (GCC, 10),
@@ -213,6 +218,25 @@ if __name__ == "__main__":
         (BOOST, "1.77.0"),
         (BOOST, "1.78.0"),
     ]
+
+    typed_parameter: OrderedDict[str, Version] = OrderedDict()
+
+    # parse str, int and float to package.version.Version
+    for parameter_name in parameters.keys():
+        typed_parameter[parameter_name] = []
+        for parameter_set in parameters[parameter_name]:
+            typed_parameter[parameter_name].append(
+                (
+                    parameter_set[NAME],
+                    pkv.parse(str(parameter_set[VERSION])),
+                )
+            )
+
+    return typed_parameter
+
+
+if __name__ == "__main__":
+    parameters: OrderedDict[str, Version] = get_parameters()
 
     cover_matrix = get_matrix(parameter=parameters, filter_func=custom_filter)
     expectedResults = generate_control_matrix(parameters)
