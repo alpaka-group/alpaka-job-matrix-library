@@ -11,7 +11,7 @@ import alpaka_job_coverage.filter_compiler_name as ajc_compiler_name
 import alpaka_job_coverage.filter_compiler_version as ajc_compiler_version
 import alpaka_job_coverage.filter_backend_version as ajc_backend_version
 import alpaka_job_coverage.filter_software_dependency as ajc_software_dependency
-from alpaka_job_coverage.versions import is_supported_version
+from alpaka_job_coverage.versions import is_supported_version, versions
 
 
 @typechecked
@@ -245,7 +245,7 @@ def check_single_filter(
 
 @typechecked
 def check_filters(
-    parameters: Dict[str, Union[Tuple[str, str], List[Tuple[str, str]]]]
+    parameters: Dict[str, Union[Tuple[str, str], List[Tuple[str, str]]]],
 ) -> bool:
     """Applies a parameter set to all available filters in the same order, in the same way
     the ajc library is doing it.
@@ -322,7 +322,9 @@ def main():
     )
 
     parser.add_argument(
-        "--ubuntu", type=str, choices=["18.04", "20.04"], help="Ubuntu version."
+        "--ubuntu",
+        type=str,
+        help=f"Ubuntu version. (Supported: {', '.join([x for x in versions[UBUNTU]])})",
     )
 
     parser.add_argument(
@@ -333,7 +335,11 @@ def main():
         "--boost", type=str, action=VersionAction, help="Set Boost version."
     )
 
-    parser.add_argument("--cxx", type=str, choices=["17", "20"], help="C++ version.")
+    parser.add_argument(
+        "--cxx",
+        type=str,
+        help=f"C++ version. (Supported: {', '.join([x for x in versions[CXX_STANDARD]])})",
+    )
 
     parser.add_argument(
         "--print-backends", action="store_true", help="Print all available back-ends."
