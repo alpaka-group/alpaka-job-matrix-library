@@ -1,5 +1,4 @@
-"""Filter rules handling software dependencies and compiler settings.
-"""
+"""Filter rules handling software dependencies and compiler settings."""
 
 import io
 
@@ -167,13 +166,33 @@ def software_dependency_filter(
         )
         return False
 
-    # all rocm images are Ubuntu 20.04 based
+    # ROCm Ubuntu support
     if (
         row_check_version(row, UBUNTU, "!=", "20.04")
         and row_check_name(row, DEVICE_COMPILER, "==", HIPCC)
+        and row_check_version(row, DEVICE_COMPILER, "<", "6.0")
         and row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER)
     ):
-        reason(output, "all ROCm images are based on Ubuntu 20.04")
+        reason(output, "ROCm 5.x images are based on Ubuntu 20.04")
+        return False
+
+    if (
+        row_check_version(row, UBUNTU, "!=", "22.04")
+        and row_check_name(row, DEVICE_COMPILER, "==", HIPCC)
+        and row_check_version(row, DEVICE_COMPILER, ">=", "6.0")
+        and row_check_version(row, DEVICE_COMPILER, "<=", "6.2")
+        and row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER)
+    ):
+        reason(output, "ROCm 6.0 until 6.2 images are based on Ubuntu 22.04")
+        return False
+
+    if (
+        row_check_version(row, UBUNTU, "!=", "24.04")
+        and row_check_name(row, DEVICE_COMPILER, "==", HIPCC)
+        and row_check_version(row, DEVICE_COMPILER, ">=", "6.3")
+        and row_check_backend_version(row, ALPAKA_ACC_GPU_HIP_ENABLE, "!=", OFF_VER)
+    ):
+        reason(output, "ROCm 6.3 and later images are based on Ubuntu 24.04")
         return False
 
     # a bug in CMAKE 3.18 avoids the correct usage of the variable CMAKE_CUDA_ARCHITECTURE if the
