@@ -1,4 +1,12 @@
 # alpaka-job-matrix-library
+
+## Development is over
+
+⚠️ Attention ⚠️
+This library is not developed anymore. Please use the successor library [bashi](https://github.com/alpaka-group/bashi/).
+
+## Original description
+
 A library to provide a job generator for CI's for alpaka based projects.
 
 The library provides everything needed to generate a sparse combination matrix for alpaca-based projects, including a set of general-purpose combination rules.
